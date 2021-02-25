@@ -200,6 +200,33 @@ adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
 
 end
 
+function get_statuscode()
+    local x=2048
+    local sum=0
+    for i=0,11 do
+        sum=sum+_G['Bit_'..i]*x
+        x=x/2
+    end
+    return string.format('%03X',sum)
+end
+
+function update_log()
+    -- print("Creating csvlog.")
+      
+    local ffopenmppt_log = nodeid .. ";" .. packetrev .. ";" .. timestamp .. ";" .. firmware_type .. ";" .. nextreboot .. ";" .. powersave .. ";".. V_oc .. ";".. V_in .. ";".. V_out .. ";".. charge_state_int .. ";" .. health_estimate .. ";".. battery_temperature .. ";".. low_voltage_disconnect .. ";".. V_out_max_temp .. ";" .. rated_batt_capacity .. ";".. solar_module_capacity .. ";".. lat .. ";" .. long .. ";" ..  statuscode
+
+    -- print("CSV payload:", ffopenmppt_log)
+
+    if(csvs == nil) then
+        csvs={}
+    end
+    if (#csvs > 4) then
+        table.remove(csvs,1)
+    end
+    table.insert(csvs,ffopenmppt_log)
+    csvlog=table.concat(csvs,"\n")
+end
+
 V_out_max_temp = V_out_max - ((battery_temperature - 25.00) * 30)
 
 if battery_temperature > 42.00 then V_out_max_temp = 13100 end
@@ -244,20 +271,20 @@ if V_in >= V_out and V_out_max_temp > V_out and Voutctrlcounter <= 0 then
 
 dac1value= 254
 dac.write(dac.CHANNEL_1, dac1value)
-print("MPPT - Setting PWM to ", dac1value)
+printv(2,"MPPT - Setting PWM to ", dac1value)
 
 
 
     count_dac = 1
     compare_dac = 0
     while count_dac < 20 do 
-    print("MPPT - Measure V_in idle - run #", count_dac) 
+    printv(2,"MPPT - Measure V_in idle - run #", count_dac) 
     val1 = ADCmeasure(6, 50)
     if compare_dac == 0 then compare_dac = val1 end
     if count_dac >= 2 and val1 <= compare_dac then count_dac = 20 end 
     if count_dac >= 2 and val1 > compare_dac then 
         compare_dac = val1 end
-        print("MPPT - Previous ADC measurement value:", compare_dac, "Latest ADC measurement value:", val1)
+        printv(2,"MPPT - Previous ADC measurement value:", compare_dac, "Latest ADC measurement value:", val1)
         count_dac =  count_dac + 1
     end
 
@@ -274,14 +301,14 @@ v_mpp_estimate = V_oc / 1.24
 v_mpp_estimate = math.floor(v_mpp_estimate)
 v_mpp_estimate = v_mpp_estimate / 1000
 V_oc = (V_oc / 1000) -- + 0.3
-print("V_oc=", V_oc)
-print("V_mpp_estimate=", v_mpp_estimate)
+printv(2,"V_oc=", V_oc)
+printv(2,"V_mpp_estimate=", v_mpp_estimate)
 dac1value = (v_mpp_estimate - Vmpp_min) / ((Vmpp_max - Vmpp_min) / 254)
 dac1value = math.floor(dac1value)
 if dac1value > 254 then dac1value = 254 end
 if dac1value < 0 then dac1value = 0 end
 dac.write(dac.CHANNEL_1, dac1value)
-print("Setting PWM to ", dac1value)
+printv(2,"Setting PWM to ", dac1value)
 
 
 end
@@ -306,7 +333,7 @@ if V_out > 12.3 and load_disabled == false then
         gpio.wakeup(14, gpio.INTR_HIGH)
         gpio.write(14, 1)
         low_voltage_disconnect_state = 1
-        print("Enabled power output")
+        printv(2,"Enabled power output")
 end
 
 --GPIO33, V_out
@@ -324,11 +351,11 @@ V_out = V_out / 1000
 
 --print("Measure V_in") 
 val1 = ADCmeasure(6, 200)
-print("V_in measure run 1", val1)
+printv(2,"V_in measure run 1", val1)
 
 --print("Measure V_in") 
 val1 = ADCmeasure(6, 30)
-print("V_in measure run 2", val1)
+printv(2,"V_in measure run 2", val1)
 
 
 
@@ -366,8 +393,8 @@ end
 
 
 
-print(lat)
-print(nodeid)
+printv(2,"lat",lat)
+printv(2,"nodeid",nodeid)
 
 packetrev = "1"
 counter_serial_loop = 0
@@ -393,31 +420,10 @@ Bit_9  = 0
 Bit_10 = 0
 Bit_11 = 0
 
-
-bin2hextable = {
-	["0000"] = "0",
-	["0001"] = "1",
-	["0010"] = "2",
-	["0011"] = "3",
-	["0100"] = "4",
-	["0101"] = "5",
-	["0110"] = "6",
-	["0111"] = "7",
-	["1000"] = "8",
-	["1001"] = "9",
-	["1010"] = "A",
-	["1011"] = "B",
-	["1100"] = "C",
-	["1101"] = "D",
-	["1110"] = "E",
-	["1111"] = "F"
-	}
-
-       
-print("#################################################################################################")
-print("V_in (mpp):", V_in, "V_out:", V_out, "V_out_max:", V_out_max, "V_out_max_temp:", V_out_max_temp)
-print("V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
-print("#################################################################################################")
+printv(2,"#################################################################################################")
+printv(2,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max:", V_out_max, "V_out_max_temp:", V_out_max_temp)
+printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
+printv(2,"#################################################################################################")
 
         charge_status = "Unknown"
        
@@ -501,9 +507,9 @@ if charge_state_int < 0 then charge_state_int = 0 end
 -- Check if we are at 2 hours before midnight.
        
 localTime = time.getlocal()
-print(string.format("%04d-%02d-%02d %02d:%02d:%02d DST:%d", localTime["year"], localTime["mon"], localTime["day"], localTime["hour"], localTime["min"], localTime["sec"], localTime["dst"]))
+printv(2,'localtime',string.format("%04d-%02d-%02d %02d:%02d:%02d DST:%d", localTime["year"], localTime["mon"], localTime["day"], localTime["hour"], localTime["min"], localTime["sec"], localTime["dst"]))
 
-print("health_test_in_progress:", health_test_in_progress, "timestamp:", timestamp)
+printv(2,"health_test_in_progress:", health_test_in_progress, "timestamp:", timestamp)
 
 
 if health_test_in_progress == false and localTime["hour"] == 22 and timestamp > 1569859000 then 
@@ -562,51 +568,14 @@ if battery_temperature <= -10.0 then system_status = system_status .. "Low batte
 if 0.2 > V_out - low_voltage_disconnect or tonumber(nextreboot) < 15 then Bit_10 = 1 end
 
 
-
-bit_string_0 = (Bit_0 .. Bit_1 .. Bit_2 .. Bit_3)
-bit_string_1 = (Bit_4 .. Bit_5 .. Bit_6 .. Bit_7)
-bit_string_2 = (Bit_8 .. Bit_9 .. Bit_10 .. Bit_11)
-
-
--- print("bitstrings: ", bit_string_0, bit_string_1, bit_string_2)
-
-statuscode = (bin2hextable[bit_string_0] .. bin2hextable[bit_string_1] .. bin2hextable[bit_string_2])
--- statuscode_json = ("0x" .. statuscode)
-
+statuscode=get_statuscode()
 -- print("statuscode =", statuscode)
 
 freeRAM = node.heap()
 
 -- CSV payload
 
-
-
--- print("Creating csvlog.")
-      
-ffopenmppt_log = nodeid .. ";" .. packetrev .. ";" .. timestamp .. ";" .. firmware_type .. ";" .. nextreboot .. ";" .. powersave .. ";".. V_oc .. ";".. V_in .. ";".. V_out .. ";".. charge_state_int .. ";" .. health_estimate .. ";".. battery_temperature .. ";".. low_voltage_disconnect .. ";".. V_out_max_temp .. ";" .. rated_batt_capacity .. ";".. solar_module_capacity .. ";".. lat .. ";" .. long .. ";" ..  statuscode
-
--- print("CSV payload:", ffopenmppt_log)
-       
-if ffopenmppt_log5 ~= nil then 
-       ffopenmppt_log1 = ffopenmppt_log2
-       ffopenmppt_log2 = ffopenmppt_log3
-       ffopenmppt_log3 = ffopenmppt_log4 
-       ffopenmppt_log4 = ffopenmppt_log5
-       ffopenmppt_log5 = ffopenmppt_log
-       csvlog = ffopenmppt_log1 .. "\n" ..  ffopenmppt_log2 .. "\n" .. ffopenmppt_log3 .. "\n" ..  ffopenmppt_log4 .. "\n" .. ffopenmppt_log5
-       
-       elseif ffopenmppt_log5 == nil and ffopenmppt_log4 ~= nil then ffopenmppt_log5 = ffopenmppt_log csvlog = ffopenmppt_log1 .. "\n" ..  ffopenmppt_log2 .. "\n" .. ffopenmppt_log3 .. "\n" ..  ffopenmppt_log4 .. "\n" .. ffopenmppt_log5
-       
-       elseif ffopenmppt_log4 == nil and ffopenmppt_log3 ~= nil then ffopenmppt_log4 = ffopenmppt_log csvlog = ffopenmppt_log1 .. "\n" ..  ffopenmppt_log2 .. "\n" .. ffopenmppt_log3 .. "\n" ..  ffopenmppt_log4
-       
-       elseif ffopenmppt_log3 == nil and ffopenmppt_log2 ~= nil then ffopenmppt_log3 = ffopenmppt_log csvlog = ffopenmppt_log1 .. "\n" ..  ffopenmppt_log2 .. "\n" .. ffopenmppt_log3
-       
-       elseif ffopenmppt_log2 == nil and ffopenmppt_log1 ~= nil then ffopenmppt_log2 = ffopenmppt_log csvlog = ffopenmppt_log1 .. "\n" ..  ffopenmppt_log2
-       
-       elseif ffopenmppt_log1 == nil then ffopenmppt_log1 = ffopenmppt_log csvlog = ffopenmppt_log1
-       
-end
-
+update_log()
 
 
 
