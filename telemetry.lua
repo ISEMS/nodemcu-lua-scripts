@@ -6,10 +6,24 @@ telemetry_channel_node = telemetry_channel .. nodeid
 
 mqtt_topic = telemetry_channel_node .. "/csvlog"
 
-print("mqtt_topic: ", mqtt_topic)
+printv(2,"mqtt_topic: ", mqtt_topic)
 
+function mqtt_publish(broker)
+    local data
+    if (broker.short) then
+        data=csvs[#csvs]
+    else
+        data=csvlog
+    end
+    broker.m:publish(mqtt_topic, data, 1, 0, function(client)
+        printv(2,"########## Success: MQTT message sent.")
+        if (broker.close) then
+            broker.m=nil
+        end
+    end)
+end
 
-function mqtt_publish()
+function mqtt_connect(broker)
     --[[
     MQTT telemetry
 
@@ -17,19 +31,21 @@ function mqtt_publish()
     MQTT broker at topic configured within "config.lua".
     ]]
 
-    print("Submitting telemetry data to MQTT broker.")
+    local m
+    printv(2,"Submitting telemetry data to MQTT broker.")
 
     -- JSON payload
     -- https://nodemcu.readthedocs.io/en/master/modules/sjson/
     -- https://github.com/ISEMS/isems-data-collector/blob/926eb4a3/test_importer.py
-    print("Creating CSV payload.")
+    printv(2,"Creating CSV payload.")
     
-    print("########## MQTT broker host:", mqtt_broker_host)
+    printv(2,"########## MQTT broker host:", broker.host)
     
     
     m = mqtt.Client("isems-" .. nodeid, 120)
-    m:on("connect", function(client) print ("########## Connected to MQTT broker") end)
-    m:on("offline", function(client) print ("########## MQTT broker offline") end)
+    broker.m=m
+    m:on("connect", function(client) printv(2,"########## Connected to MQTT broker") end)
+    m:on("offline", function(client) printv(1,"########## MQTT broker " .. broker.host .. " offline") ; broker.m=nil end)
 
     -- on publish message receive event
     m:on("message", function(client, topic, message) 
@@ -39,23 +55,27 @@ function mqtt_publish()
     end
 end)
 
-   m:connect(mqtt_broker_host, mqtt_broker_port, 0,
+   m:connect(broker.host, broker.port, 0,
         function(client)
             -- subscribe topic with qos = 0
             -- client:subscribe(mqtt_topic, 0, function(client) print("subscribe success") end)
-            client:publish(mqtt_topic, csvlog, 1, 0, function(client) print("########## Success: MQTT message sent.") end)
+	    mqtt_publish(broker)
         end,
         function(client, reason)
             print("########### MQTT connect failed. Reason: " .. reason)
         end
     )
-    
-
 end
 
 
-if mqtt_enabled == true then
-    print("Sending csv log mqtt data.")
-    print(csvlog)
-    mqtt_publish()
+if type(mqtt_brokers) == "table" then
+    printv(2,"Sending csv log mqtt data.")
+    printv(2,'csvlog',csvlog)
+    for i,broker in ipairs(mqtt_brokers) do
+        if (broker.m) then
+            mqtt_publish(broker)
+        else
+            mqtt_connect(broker)
+        end
+    end
 end
