@@ -1,0 +1,2 @@
+https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/master/
+https://raw.githubusercontent.com/dh1df/nodemcu-binaries/master/ESP32_16MB-ota/
