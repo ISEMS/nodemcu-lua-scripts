@@ -24,6 +24,13 @@
 -- If config.lua doesn't contain this setting, set to "false".
 encrypted_webkey = false
 
+-- Print with verbosity level 0:Critical,1:Error,2:Info,3:Debug,4:Trace
+function printv(v,...)
+    if (verbose == nil or verbose >= v) then
+        print(...)
+    end
+end
+
 -- Load content from config.lua
 dofile"config.lua"
 
@@ -432,9 +439,11 @@ uplinktimer = tmr.create()
 uplinktimer:register(10000, tmr.ALARM_SINGLE, function() print("Starting NTP service") time.initntp("pool.ntp.org") end)
 uplinktimer:start()
 
-ow18b20timer = tmr.create()
-ow18b20timer:register(12000, tmr.ALARM_AUTO, function() dofile"18b20.lua" end)
-ow18b20timer:start()
+if (ow18b20 == true) then
+    ow18b20timer = tmr.create()
+    ow18b20timer:register(12000, tmr.ALARM_AUTO, function() dofile"18b20.lua" end)
+    ow18b20timer:start()
+end
 
 
 mppttimer = tmr.create()
@@ -442,10 +451,10 @@ mppttimer:register(15000, tmr.ALARM_AUTO, function() dofile"mp2.lua" if autorebo
 if autoreboot ~= 1 and nextreboot <= -1 then node.restart() end end)
 mppttimer:start()
 
-if mqtt_enabled == true or http_enabled == true then
+if type(mqtt_brokers) == "table" or http_enabled == true then
 mqtttimer = tmr.create()
 mqtttimer:register(65000, tmr.ALARM_AUTO, function() 
-                   print("MQTT telemetry process started")
+                   printv(2,"MQTT telemetry process started")
 		   if Voutctrlcounter > 0  then V_outctrltimer:stop() end 
                    dofile"telemetry.lua" 
                    if Voutctrlcounter > 0  then V_outctrltimer:start() end
