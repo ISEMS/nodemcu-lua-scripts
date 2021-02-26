@@ -436,7 +436,7 @@ wifi.sta.config({ssid=sta_ssid, pwd=sta_pwd, auto=true}, true)
 end
 
 uplinktimer = tmr.create()
-uplinktimer:register(10000, tmr.ALARM_SINGLE, function() print("Starting NTP service") time.initntp("pool.ntp.org") end)
+uplinktimer:register(10000, tmr.ALARM_SINGLE, function() print("Starting NTP service") time.initntp() end)
 uplinktimer:start()
 
 if (ow18b20 == true) then
