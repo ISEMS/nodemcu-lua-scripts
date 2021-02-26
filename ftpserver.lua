@@ -385,7 +385,7 @@ dataServer = function(cxt, n) -- upval: (pcall, net, ftpDataOpen, debug, tostrin
     cxt.dataServer = net.createServer(net.TCP, 300)
     cxt.dataServer:listen(n, function(sock) -- upval: cxt, (ftpDataOpen)
       ftpDataOpen(cxt,sock)
-      end)
+      end, true)
  -- debug("Listening on Data port %u, server %s",n, tostring(cxt.dataServer))
   else
     cxt.dataServer = nil
