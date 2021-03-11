@@ -2,6 +2,8 @@
 if (telnet_srv3) then
     telnet_srv3:close()
 end
+require"cmds"
+require"shell"
 telnet_srv3 = net.createServer(net.TCP, 180)
 telnet_srv3:listen(23, function(socket)
     local fifo = {}
