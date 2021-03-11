@@ -215,8 +215,7 @@ srv:listen(80, function(conn)
 
                         <h3>Commands</h3>
                         <b>/ftp+key</b> (starts ftp server and pauses the main MPPT program)<br>
-                        <b>/reboot+key</b><br><b>/telnet+key</b> (starts an open (!) telnet LUA command line interface at port 2323)<br>
-                        <b>/shell+key</b> (starts an open (!) Unix-like minimal commandline interface at telnet port 2333)<br>
+                        <b>/reboot+key</b><br><b>/telnet+key</b> (starts a password-protected (either webkey or ftppass) telnet LUA/Shell command line interface at port 23). Use root as username for shell and lua for lua interface<br>
                         <b>/mpptstart+key</b> (restarts the main mppt program. It is automatically paused when FTP starts in order to save CPU and RAM.)<br>
                         <b>/loadoff+key</b> Turn load off.<br>
                         <b>/loadon+key</b> Turn load on.<br>
@@ -290,16 +289,9 @@ srv:listen(80, function(conn)
 
                 if tel ~= nil and telnet_runs == nil then
                     print("TELNET")
-                    send_response("Lua interface via telnet port 2323 enabled.")
+                    send_response("Lua/Shell interface via telnet port 23 enabled.")
                     require"telnet"
                     telnet_runs = 1
-                end
-
-                if sh ~= nil and shell_runs == nil then
-                    print("SHELL")
-                    send_response("Command line shell via telnet port 2333 enabled.")
-                    require"telnet2"
-                    shell_runs = 1
                 end
 
                 if mppt_start ~= nil then
