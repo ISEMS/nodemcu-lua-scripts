@@ -31,16 +31,14 @@ function shell.help(ctx,tables)
 	return 0
 end
 
-function shell.cmd2(ctx,tables,cmd,...)
-    
-    
-	if (cmd == 'help' or cmd == nil) then
+function shell.cmd_exec(ctx,tables,cmd,args)
+	if (cmd == 'help' or cmd == '' or cmd == nil) then
 		return shell.help(ctx,tables)
 	end
 	for key,item in pairs(tables) do
 		local f=item[cmd]
 		if (f) then
-			local status,ret=pcall(f,ctx,...)
+			local status,ret=xpcall(function() f(ctx,unpack(args)) end ,function(x) return x.."\n"..debug.traceback() end)
 			if (status) then
 				return ret
 			end
@@ -52,19 +50,48 @@ function shell.cmd2(ctx,tables,cmd,...)
 	return -22
 end
 
-function shell.cmd(ctx,c)
-	-- ctx.stderr:print("cmd '"..c.."'")
+function shell.pack(...)
+	return { n = select("#", ...), ... }
+end
+
+function shell.cmd2(ctx,tables,cmd,...)
+	return shell.cmd_exec(ctx,tables,cmd,shell.pack(...))
+end
+
+function shell.cmd_line(ctx,c)
 	local args=shell.words(c)
-	if (args[1] == nil or args[1] == "") then return end
-	local ret=shell.cmd2(ctx,shell.cmd_tables(),unpack(args))
+	local cmd=table.remove(args,1)
+	if (cmd == nil or cmd == "") then return end
+	local ret=shell.cmd_exec(ctx,shell.cmd_tables(),cmd,args) 
 	if (ret == nil) then ret=0 end
+	return ret
+end
+
+function shell.response(ret)
 	if (ret < 0) then
-		ctx.stderr:print("ERR "..ret)
+		return("ERR "..ret)
 	elseif (ret > 0) then
-		ctx.stderr:print("OK "..ret)
+		return("OK "..ret)
 	else
-		ctx.stderr:print("OK")
+		return("OK")
 	end
+end
+
+function shell.cmd(ctx,c)
+	ret=shell.cmd_line(ctx,c)
+	if (ret == nil) then
+		return
+	end
+	ctx.stderr:print(shell.response(ret))
+	end
+
+function shell.cmd_str(c)
+	str_ctx={}
+	str_ctx.stdin=iostr:new()
+	str_ctx.stdout=iostr:new()
+	str_ctx.stderr=iostr:new()
+	ret=shell.cmd_line(str_ctx,c)
+	return ret,str_ctx.stdout.data,str_ctx.stderr.data
 end
 
 function shell.filter(ctx,from,to,tomode,filterfunc,post)
@@ -182,3 +209,8 @@ function io.print(self,...)
 	self:write("\n")
 end
 
+iostr=io:new()
+
+function iostr.write(self, str)
+	self.data=(self.data or "")..str
+end

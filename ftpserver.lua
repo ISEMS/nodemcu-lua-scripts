@@ -9,6 +9,7 @@ local FTP, cnt = {client = {}}, 0
 local processCommand    -- function(cxt, sock, data)
 local processBareCmds   -- function(cxt, cmd)
 local processSimpleCmds -- function(cxt, cmd, arg)
+local processSiteCmds   -- function(cxt, cmd, arg)
 local processDataCmds   -- function(cxt, cmd, arg)
 local dataServer        -- function(cxt, n)
 local ftpDataOpen       -- function(dataSocket)
@@ -171,6 +172,8 @@ processCommand = function(cxt, sock, data) -- upvals: (, debug, processBareCmds,
     processSimpleCmds(cxt, cmd, arg)
   elseif ('_LIST_NLST_RETR_STOR_'):find(_cmd_) then
     processDataCmds(cxt, cmd, arg)
+  elseif (cmd == 'SITE')  then
+    processSiteCmds(cxt, cmd, arg)
   else
     cxt.send("500 Unknown error")
   end
@@ -285,6 +288,26 @@ processSimpleCmds = function(cxt, cmd, arg)  -- upval: from (, file, tostring, d
   end
 end -- processSimpleCmds(cmd, arg, send)
 
+processSiteCmds = function(cxt, cmd, arg) 
+  local send = cxt.send
+  local ret,stdout,stderr=shell.cmd_str(arg)
+  local prefix="111 ";
+  for dummy,out in ipairs({stdout,stderr}) do
+    if (out ~= nil) then
+      for line in out:gmatch("[^\r\n]+") do
+        send(prefix..line)
+      end
+    end
+    prefix="112 ";
+  end
+  if (ret == nil) then
+    send("500 Unknown error")
+  elseif (ret >= 0) then
+    send("211 "..shell.response(ret))
+  else
+    send("451 "..shell.response(ret))
+  end
+end -- processSiteCmds(cmd, arg)
 
 -------------------------- Process Data Commands -----------------------------
 processDataCmds = function(cxt, cmd, arg)  -- upval: FTP (, pairs, file, tostring, debug, post)
