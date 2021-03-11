@@ -205,8 +205,8 @@ srv:listen(80, function(conn)
                         <br><br>
 
                         Now, you can upload a customized version of <b>config.lua</b> via FTP
-                        with the default FTP user-password combination <b>admin / pass123</b> like
-                        <pre>lftp -u admin,pass123 IP-or-URL-of-FF-ESP32-device -c 'put config.lua'</pre>
+                        with the default FTP user-password combination <b>root / pass123</b> like
+                        <pre>lftp -u root,pass123 IP-or-URL-of-FF-ESP32-device -c 'put config.lua'</pre>
                         <br><br>
 
                         All passwords are stored in <b>config.lua</b> and should be changed before deploying the system, of course.
@@ -269,7 +269,7 @@ srv:listen(80, function(conn)
                     print("FTP")
                     --sck:send("FTP server enabled. MPPT timer stopped. Reboot device when you are finished.")
                     send_response("<html>FTP server enabled. MPPT timer stopped. Reboot device when you are finished.<br>\nISEMS is disabled while FTP is running. See <a href=\"help.html\">Howto</a></html>")
-                    require("ftpserver").createServer('admin', ftppass)
+                    require("ftpserver").createServer('root', ftppass)
                     mppttimer:stop()
                     ftp_runs = 1
                     

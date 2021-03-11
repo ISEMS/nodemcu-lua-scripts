@@ -12,7 +12,7 @@ webkey="secret123"
 
 encrypted_webkey = false
 
--- FTP password. Username is "admin"
+-- FTP password. Username is "root"
 -- Since FTP login and traffic is not encrypted, the password can be sniffed. 
 ftppass='pass123'
 
