@@ -4,6 +4,7 @@ dofile"SSD1327-waveshare-128x128.lua"
 function run_file(file)
     print("Starting",file)
     dofile(file)
+    print_free()
 end
 
 function run_prefix(prefix)
@@ -28,6 +29,11 @@ function kill()
     run_prefix("K")
 end
 
+function print_free()
+	print(node.heap().." Bytes free, "..(collectgarbage("count")*1024).." in use")
+end
+
+print_free()
 boottimer = tmr.create()
 print("Booting in 5 seconds, enter stop() to cancel")
 boottimer:register(5000, tmr.ALARM_SINGLE, start)

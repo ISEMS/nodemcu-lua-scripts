@@ -1,6 +1,6 @@
-cmds_wget={}
+local cmds_wget={}
 
-function putcontents(filename,data)
+local function putcontents(filename,data)
 	local fd = file.open(filename, "w")
 	if fd == nil then return nil end
 	if (fd:write(data) == nil) then return nil end
@@ -87,3 +87,5 @@ function cmds_wget.wget(ctx,url,filename,md5,async)
 	end
 	return ret
 end
+
+return cmds_wget

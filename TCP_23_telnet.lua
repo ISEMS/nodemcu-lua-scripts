@@ -1,11 +1,5 @@
--- a simple telnet server
-if (telnet_srv3) then
-    telnet_srv3:close()
-end
-require"cmds"
-require"shell"
-telnet_srv3 = net.createServer(net.TCP, 180)
-telnet_srv3:listen(23, function(socket)
+print("TELNET")
+return function(socket)
     local fifo = {}
     local fifo_drained = true
     local rxbuffer = ''
@@ -104,14 +98,14 @@ telnet_srv3:listen(23, function(socket)
 		close()
 		return
 	    end
-            ctx.stdin=io:new{write=write}
-            ctx.stdout=ctx.stdin
-            ctx.stderr=ctx.stdin
-            ctx.exit=close
 	    if (auth == 2) then
 		node.output(s_output, 0)
             	node.input('\n')
 	    elseif (auth == 3) then
+                ctx.stdin=io:new{write=write}
+                ctx.stdout=ctx.stdin
+                ctx.stderr=ctx.stdin
+                ctx.exit=close
                 shell.prompt(ctx)
 	    end
         elseif (auth == 2) then
@@ -129,4 +123,4 @@ telnet_srv3:listen(23, function(socket)
     socket:on("sent", sender)
 
     s_output("Welcome to NodeMCU world.\nlogin: ")
-end, true)
+end

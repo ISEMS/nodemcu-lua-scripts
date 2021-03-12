@@ -1,4 +1,3 @@
-
 local file,net,wifi,node,string,table,tmr,pairs,print,pcall, tostring =
       file,net,wifi,node,string,table,tmr,pairs,print,pcall, tostring
 local post = node.task.post
@@ -29,101 +28,6 @@ local function debug (fmt, ...) -- upval: cnt (, print, node, tmr)
   cnt = cnt + 1
   if cnt % 10 then tmr.wdclr() end
 end
-
---------------------------- Set up the FTP object ----------------------------
---       FTP has three static methods: open, createServer and close
-------------------------------------------------------------------------------
-
--- optional wrapper around createServer() which also starts the wifi session
-function FTP.open(user, pass, ssid, pwd, dbgFlag) -- upval: FTP (, wifi, tmr, print)
-  if ssid then
-    wifi.setmode(wifi.STATION, false)
-    wifi.sta.config { ssid = ssid, pwd  = pwd, save = false }
-  end
-  local t = tmr.create()
-  t:alarm(500, tmr.ALARM_AUTO, function()
-    if (wifi.sta.status() == wifi.STA_GOTIP) then
-      t:unregister()
-      t=nil
-      print("Welcome to NodeMCU world", node.heap(), wifi.sta.getip())
-      return FTP.createServer(user, pass, dbgFlag)
-    else
-      uart.write(0,".")
-    end
-  end)
-end
-
-
-function FTP.createServer(user, pass, dbgFlag)  -- upval: FTP (, debug, tostring, pcall, type, processCommand)
-  FTP.user, FTP.pass, FTP.debug = user, pass, dbgFlag
-  FTP.server = net.createServer(net.TCP, 180)
-  _G.FTP = FTP
-  debug("Server created: (userdata) %s", tostring(FTP.server))
-
-  FTP.server:listen(21, function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
-      -- since a server can have multiple connections, each connection
-      -- has a CNX table to store connection-wide globals.
-      local client = FTP.client
-      local CNX; CNX = {
-        validUser = false,
-        cmdSocket = sock,
-        send      = function(rec, cb) -- upval: CNX (,debug)
-         -- debug("Sending: %s", rec)
-            return CNX.cmdSocket:send(rec.."\r\n", cb)
-          end, --- send()
-        close    = function(sock) -- upval: client, CNX (,debug, pcall, type)
-         -- debug("Closing CNX.socket=%s, sock=%s", tostring(CNX.socket), tostring(sock))
-            for _,s in ipairs{'cmdSocket', 'dataServer', 'dataSocket'} do
-              local sck; sck,CNX[s] = CNX[s], nil
-           -- debug("closing CNX.%s=%s", s, tostring(sck))
-              if type(sck)=='userdata' then pcall(sck.close, sck) end
-            end
-            client[sock] = nil
-          end -- CNX.close()
-        }
-
-      local function validateUser(sock, data) -- upval: CNX, FTP (, debug, processCommand)
-        -- validate the logon and if then switch to processing commands
-
-     -- debug("Authorising: %s", data)
-        local cmd, arg = data:match('([A-Za-z]+) *([^\r\n]*)')
-        local msg =  "530 Not logged in, authorization required"
-        cmd = cmd:upper()
-
-        if   cmd == 'USER' then
-          CNX.validUser = (arg == FTP.user)
-          msg = CNX.validUser and
-                 "331 OK. Password required" or
-                 "530 user not found"
-
-        elseif CNX.validUser and cmd == 'PASS' then
-          if arg == FTP.pass then
-            CNX.cwd = '/'
-            sock:on("receive", function(sock,data)
-                processCommand(CNX,sock,data)
-              end) -- logged on so switch to command mode
-            msg = "230 Login successful. Username & password correct; proceed."
-          else
-            msg = "530 Try again"
-          end
-
-        elseif cmd == 'AUTH' then
-          msg = "500 AUTH not understood"
-
-        end
-
-        return CNX.send(msg)
-      end
-
-    local port,ip = sock:getpeer()
- -- debug("Connection accepted: (userdata) %s client %s:%u", tostring(sock), ip, port)
-    sock:on("receive",       validateUser)
-    sock:on("disconnection", CNX.close)
-    FTP.client[sock]=CNX
-
-    CNX.send("220 FTP server ready");
-  end) -- FTP.server:listen()
-end -- FTP.createServer()
 
 
 function FTP.close() -- upval: FTP (, debug, post, tostring)
@@ -501,5 +405,68 @@ ftpDataOpen = function(cxt, dataSocket) -- upval: (debug, tostring, post, pcall)
 end -- ftpDataOpen(socket)
 
 ------------------------------------------------ -----------------------------
+return function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
+      -- since a server can have multiple connections, each connection
+      -- has a CNX table to store connection-wide globals.
+      FTP.user='root'
+      FTP.pass=ftppass
+      local client = FTP.client
+      local CNX; CNX = {
+        validUser = false,
+        cmdSocket = sock,
+        send      = function(rec, cb) -- upval: CNX (,debug)
+         -- debug("Sending: %s", rec)
+            return CNX.cmdSocket:send(rec.."\r\n", cb)
+          end, --- send()
+        close    = function(sock) -- upval: client, CNX (,debug, pcall, type)
+         -- debug("Closing CNX.socket=%s, sock=%s", tostring(CNX.socket), tostring(sock))
+            for _,s in ipairs{'cmdSocket', 'dataServer', 'dataSocket'} do
+              local sck; sck,CNX[s] = CNX[s], nil
+           -- debug("closing CNX.%s=%s", s, tostring(sck))
+              if type(sck)=='userdata' then pcall(sck.close, sck) end
+            end
+            client[sock] = nil
+          end -- CNX.close()
+        }
 
-return FTP
+      local function validateUser(sock, data) -- upval: CNX, FTP (, debug, processCommand)
+        -- validate the logon and if then switch to processing commands
+
+     -- debug("Authorising: %s", data)
+        local cmd, arg = data:match('([A-Za-z]+) *([^\r\n]*)')
+        local msg =  "530 Not logged in, authorization required"
+        cmd = cmd:upper()
+
+        if   cmd == 'USER' then
+          CNX.validUser = (arg == FTP.user)
+          msg = CNX.validUser and
+                 "331 OK. Password required" or
+                 "530 user not found"
+
+        elseif CNX.validUser and cmd == 'PASS' then
+          if arg == FTP.pass then
+            CNX.cwd = '/'
+            sock:on("receive", function(sock,data)
+                processCommand(CNX,sock,data)
+              end) -- logged on so switch to command mode
+            msg = "230 Login successful. Username & password correct; proceed."
+          else
+            msg = "530 Try again"
+          end
+
+        elseif cmd == 'AUTH' then
+          msg = "500 AUTH not understood"
+
+        end
+
+        return CNX.send(msg)
+      end
+
+    local port,ip = sock:getpeer()
+ -- debug("Connection accepted: (userdata) %s client %s:%u", tostring(sock), ip, port)
+    sock:on("receive",       validateUser)
+    sock:on("disconnection", CNX.close)
+    FTP.client[sock]=CNX
+
+    CNX.send("220 FTP server ready");
+  end -- FTP.server:listen()

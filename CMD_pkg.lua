@@ -1,11 +1,11 @@
-cmds_pkg={}
-subcmds_pkg={}
+local cmds_pkg={}
+local subcmds_pkg={}
 
 function cmds_pkg.pkg(ctx,...)
 	return shell.cmd2(ctx,{subcmds_pkg},...)
 end
 
-function set_installed(ctx,pcols)
+local function set_installed(ctx,pcols)
 	local oldversion=0
 	local post
 	if (pcols[2]) then
@@ -26,7 +26,7 @@ function set_installed(ctx,pcols)
 	return oldversion
 end
 
-function concat_path(p1,p2)
+local function concat_path(p1,p2)
 	while (p2:sub(1, 3) == '../') do
 		local index=p1:sub(1,-2):match('^.*()/')
 		p1=p1:sub(1,index)
@@ -143,3 +143,5 @@ function subcmds_pkg.upgrade(ctx)
 	end
 	fd:close()
 end
+
+return cmds_pkg

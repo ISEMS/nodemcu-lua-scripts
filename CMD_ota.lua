@@ -1,10 +1,10 @@
-cmds_ota={}
+local cmds_ota={}
 
 function cmds_ota.ota(ctx,subcmd,...)
   return shell.cmd2(ctx,{subcmds_ota},subcmd,...)
 end
 
-subcmds_ota={}
+local subcmds_ota={}
 
 function subcmds_ota.info(ctx)
   boot_part, next_part, info = otaupgrade.info()
@@ -31,3 +31,5 @@ end
 function subcmds_ota.update(ctx,url,md5)
   cmds_wget.wget(ctx,url,'ota:',md5,true)
 end
+
+return cmds_ota

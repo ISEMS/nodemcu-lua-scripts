@@ -1,5 +1,7 @@
-cmds_base={}
-console_users={}
+local cmds_base={}
+if (console_users == nil) then
+    console_users={}
+end
 
 function cmds_base.cat(ctx,filename)
 	fd = shell.open(ctx,filename, "r")
@@ -105,13 +107,21 @@ function cmds_base.dump(ctx,...)
 end
 
 function cmds_base.free(ctx)
-	ctx.stdout:print(node.heap())
+	local old=collectgarbage("count")
+	collectgarbage("collect")
+	ctx.stdout:print(node.heap(),old*1024,collectgarbage("count")*1024)
 	return 0
 end
 
 function cmds_base.ls(ctx)
-	for key,value in pairs(file.list()) do
-		ctx.stdout:print(key,value)
+	local files=file.list()
+	local sfiles={}
+	for key,value in pairs(files) do
+	    table.insert(sfiles,key)
+	end
+	table.sort(sfiles)
+	for i,value in ipairs(sfiles) do
+	    ctx.stdout:print(value,files[value])
 	end
 	return 0
 end
@@ -190,3 +200,5 @@ function cmds_base.uptime(ctx)
 	ctx.stdout:print(s,"s",ms,"ms",us,"us")
 	return 0
 end
+
+return cmds_base

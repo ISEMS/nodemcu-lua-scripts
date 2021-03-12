@@ -4,14 +4,61 @@ function cmds_shell.exit(ctx)
 	ctx:exit()
 end
 
+function cmds_shell.rehash(ctx)
+	shell.rehash()
+end
+
 shell={}
+
+local function get_module(name)
+	if (shell.module == nil) then
+		shell.module={}
+		setmetatable(shell.module, { __mode = "v" })
+	end
+	local mod=shell.module[name]
+	if (not mod) then
+		print("loading",name)
+		mod=require(name)
+		package.loaded[name]=nil
+		shell.module[name]=mod
+	else
+		print(name,"already loaded")
+	end
+	return mod
+end
+
+local function proxy(name,cmd,...)
+	local mod=get_module(name)
+	return mod[cmd](...)
+end
+
+function shell.rehash()
+	local cmds={}
+	for key,value in pairs(file.list()) do
+	    if (key:match("CMD_.*%.lua")) then
+		-- print(key)
+		local name=key:sub(1,-5)
+		local mod=get_module(name)
+		for key2,value2 in pairs(mod) do
+		    -- print(key,":",key2)
+		    cmds[key2]=function(...) proxy(name,key2,...) end
+		end
+	    end
+	end
+	shell.cmds=cmds
+end
 
 function shell.cmd_tables()
 	local list={}
+	-- table.insert(shell.cmds)
 	for key,item in pairs(_G) do
                 if (key:sub(0,5) == 'cmds_') then
+			-- print("global",key)
 			table.insert(list,item)
 		end
+	end
+	if (shell.cmds) then
+		table.insert(list,shell.cmds)
 	end
 	return list
 end
@@ -20,7 +67,9 @@ function shell.help(ctx,tables)
 	local list={}
 	ctx.stdout:print("Following commands exist:")
 	for key,item in pairs(tables) do
+		print("key",key)
 		for key,item in pairs(item) do
+			print("key",key,type(item))
 			if (type(item) == "function") then
 				table.insert(list,key)
 			end
@@ -214,3 +263,7 @@ iostr=io:new()
 function iostr.write(self, str)
 	self.data=(self.data or "")..str
 end
+
+shell.rehash()
+
+return shell
