@@ -3,8 +3,8 @@ board.lua 1 bec36d44a9c935bc37e0e3c41be4231f ../832ab836479cd95175a04f3e4faf376a
 calibration.lua 1 09f91fdccdb42174f512ebf467412257 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/calibration.lua
 CMD_base.lua 1 0752f30059b55c87e61cafe741615e0f ../ddb0d70615e7502bdf3beddcefc375d7352fed28/CMD_base.lua
 CMD_ota.lua 1 8ed413a515c3a25fd909e02f7fac3c75 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/CMD_ota.lua
-CMD_pkg.lua 1 22ba7996864876bc9d8f7a751012ce6d ../ddb0d70615e7502bdf3beddcefc375d7352fed28/CMD_pkg.lua
-CMD_wget.lua 1 93b29d5b613c5d12e1ba216646ba64f7 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/CMD_wget.lua
+CMD_pkg.lua 3 154f5ebd15adbc09377863dafb6ae1e0 ../407fb98374de0329b13dd1d0f40960a951a11d6a/CMD_pkg.lua
+CMD_wget.lua 2 4598405d3a949293381d4c4c85093103 ../407fb98374de0329b13dd1d0f40960a951a11d6a/CMD_wget.lua
 config.lua 2 1fd6e28ffc05aacb74945eb3388a1e5d ../12cd819290dee5c34e9f4d7cc698835a52dbbf18/config.lua
 display.lua 1 5e120b1d12e1597c6bd8d94aeb84f4ff ../832ab836479cd95175a04f3e4faf376ae217968e/display.lua
 init.lua 5 22326494f74c00283ebdff61916736ac ../ddb0d70615e7502bdf3beddcefc375d7352fed28/init.lua
@@ -13,11 +13,11 @@ mp2.lua 2 e0f14de0fa6225180a213b0c4ad89951 ../1f20fc3f7e3a253d1eacdc737f17250f99
 S10config.lua 1 3d65b7a70e8c7dd85c984f7588740c11 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/S10config.lua
 S50wifi.lua 1 460eaf32f89bf588cfc291a59a5a10cb ../ddb0d70615e7502bdf3beddcefc375d7352fed28/S50wifi.lua
 S95servers.lua 1 841196d4b337a90dce327fdd42dae519 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/S95servers.lua
-shell.lua 3 efbebfc7610892a85234df7503d3a567 ../ddb0d70615e7502bdf3beddcefc375d7352fed28/shell.lua
+shell.lua 4 f75fae664ef88faf708015e82412a59f ../407fb98374de0329b13dd1d0f40960a951a11d6a/shell.lua
 SSD1306.lua 1 dc09969b82b93ad5b69fb981818c7f8a ../832ab836479cd95175a04f3e4faf376ae217968e/SSD1306.lua
 SSD1327-waveshare-128x128.lua 1 681a17df5fcfa64e1c7ae79a5e7e4676 ../832ab836479cd95175a04f3e4faf376ae217968e/SSD1327-waveshare-128x128.lua
-TCP_21_ftp.lua 1 822b0bfd80dc159d0cca038a4703b1dd ../ddb0d70615e7502bdf3beddcefc375d7352fed28/TCP_21_ftp.lua
-TCP_23_telnet.lua 1 54e1bfe10a7a5df0c79e2fbf0744066e ../ddb0d70615e7502bdf3beddcefc375d7352fed28/TCP_23_telnet.lua
+TCP_21_ftp.lua 2 54b559481b78890b6915e37041694801 ../407fb98374de0329b13dd1d0f40960a951a11d6a/TCP_21_ftp.lua
+TCP_23_telnet.lua 2 18d63f92df1671f0016f6db56e08e2f4 ../407fb98374de0329b13dd1d0f40960a951a11d6a/TCP_23_telnet.lua
 TCP_80_web.lua 1 a8ba78c53f6fcf35202174a4702f219b ../ddb0d70615e7502bdf3beddcefc375d7352fed28/TCP_80_web.lua
 telemetry.lua 2 65c4d1ec658673bbbc12645b559e8321 ../c555e1f5fecb6c2e4909b700afb69796847dbfdb/telemetry.lua
 vrcal.lua 1 3a9bdbbc1b58d9e6b53458cf5e445f8b ../832ab836479cd95175a04f3e4faf376ae217968e/vrcal.lua
