@@ -6,6 +6,7 @@ end
 
 function cmds_shell.rehash(ctx)
 	shell.rehash()
+	return 0
 end
 
 shell={}
@@ -17,12 +18,12 @@ local function get_module(name)
 	end
 	local mod=shell.module[name]
 	if (not mod) then
-		print("loading",name)
+		-- print("loading",name)
 		mod=require(name)
 		package.loaded[name]=nil
 		shell.module[name]=mod
 	else
-		print(name,"already loaded")
+		-- print(name,"already loaded")
 	end
 	return mod
 end
@@ -41,7 +42,7 @@ function shell.rehash()
 		local mod=get_module(name)
 		for key2,value2 in pairs(mod) do
 		    -- print(key,":",key2)
-		    cmds[key2]=function(...) proxy(name,key2,...) end
+		    cmds[key2]=function(...) return proxy(name,key2,...) end
 		end
 	    end
 	end
@@ -67,9 +68,9 @@ function shell.help(ctx,tables)
 	local list={}
 	ctx.stdout:print("Following commands exist:")
 	for key,item in pairs(tables) do
-		print("key",key)
+		-- print("key",key)
 		for key,item in pairs(item) do
-			print("key",key,type(item))
+			-- print("key",key,type(item))
 			if (type(item) == "function") then
 				table.insert(list,key)
 			end
@@ -87,7 +88,8 @@ function shell.cmd_exec(ctx,tables,cmd,args)
 	for key,item in pairs(tables) do
 		local f=item[cmd]
 		if (f) then
-			local status,ret=xpcall(function() f(ctx,unpack(args)) end ,function(x) return x.."\n"..debug.traceback() end)
+			local status,ret=xpcall(function() return f(ctx,unpack(args)) end ,function(x) return x.."\n"..debug.traceback() end)
+			-- print("xpcall","status",status,"ret",ret)
 			if (status) then
 				return ret
 			end

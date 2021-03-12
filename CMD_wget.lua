@@ -45,7 +45,7 @@ function cmds_wget.wget(ctx,url,filename,md5,async)
 				if (hex ~= md5) then
 					ctx.stderr:write("MD5 failed "..hex.." vs " .. md5 .. "\n")
 					ret=-1
-					return
+					return ret
 				end
 			end
 			if (filename == 'ota:') then

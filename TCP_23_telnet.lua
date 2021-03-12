@@ -102,6 +102,7 @@ return function(socket)
 		node.output(s_output, 0)
             	node.input('\n')
 	    elseif (auth == 3) then
+		require('shell')
                 ctx.stdin=io:new{write=write}
                 ctx.stdout=ctx.stdin
                 ctx.stderr=ctx.stdin

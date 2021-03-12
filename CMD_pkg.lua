@@ -52,7 +52,7 @@ function subcmds_pkg.install(ctx,name)
 					dest='ota:'
 					async=true
 				end
-				cmds_wget.wget(ctx,cols[4],dest,cols[3],async)
+				shell.cmd_exec(ctx,shell.cmd_tables(),'wget',{cols[4],dest,cols[3],async})
 				if (dest ~= 'ota:') then
 					shell.rename(ctx,dest,name)
 				end
@@ -99,7 +99,7 @@ function subcmds_pkg.update(ctx)
 		if (str == nil) then break end
 		local cols=shell.words(str)
 		local baseurl=cols[1]
-		ret=cmds_wget.wget(ctx, baseurl .. "packages.txt","packages.tmp1")
+		ret=shell.cmd_exec(ctx,shell.cmd_tables(),'wget',{baseurl .. "packages.txt","packages.tmp1"})
 		if (ret ~= 0) then break end
 		ret=shell.filter(ctx,"packages.tmp1","packages.tmp2","a",
 			function(line)

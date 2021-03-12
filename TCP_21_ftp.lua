@@ -194,6 +194,7 @@ end -- processSimpleCmds(cmd, arg, send)
 
 processSiteCmds = function(cxt, cmd, arg) 
   local send = cxt.send
+  require('shell')
   local ret,stdout,stderr=shell.cmd_str(arg)
   local prefix="111 ";
   for dummy,out in ipairs({stdout,stderr}) do
