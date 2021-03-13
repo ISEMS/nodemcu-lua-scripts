@@ -167,7 +167,7 @@ end
 function cmds_base.wifiscan(ctx,...)
         wifi.sta.scan({ hidden = 1 }, function(err,arr)
         if err then
-        ctx.stderr.print ("Scan failed:", err)
+        ctx.stderr:print ("Scan failed:", err)
         else
         ctx.stdout:print("\n", string.format("%-26s","SSID"),"Channel        BSSID            RSSI  Auth   Bandwidth")
         for i,ap in ipairs(arr) do
