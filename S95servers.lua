@@ -22,17 +22,17 @@ end
 function server_activate(name)
     local port=name:match("TCP_(%d*).*%.lua")
     if (port) then
-	print("Activating",name,tcp_servers,port)
+	print("Activating",name)
 	local s=net.createServer(net.TCP)
-	tcp_servers[port]=s
+	tcp_servers[name]=s
 	s:listen(port,function(c) server_connect(c,name:sub(1,-5)) end, true)
     end
 end
 
-function server_deactivate(port)
-    local s=tcp_servers[port]
+function server_deactivate(name)
+    local s=tcp_servers[name]
     s:close()
-    tcp_servers[port]=nil
+    tcp_servers[name]=nil
 end
 
 for key,value in pairs(file.list()) do
