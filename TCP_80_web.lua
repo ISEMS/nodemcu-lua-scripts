@@ -4,15 +4,108 @@ if encrypted_webkey == true then  randomstring,  webkeyhash = cryptokey (webkey)
 
 if encrypted_webkey == false or encrypted_webkey == nil then webkeyhash = webkey randomstring = "Encryption not enabled." end
 
-return function(conn)
-    http_preamble = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n"
+local headers
+local payload=''
+local content=''
+local response = {}
+local http_preamble = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n'
+local http_auth = 'HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm="'..randomstring..'"\r\nContent-Type: text/html\r\n\r\nAccess denied'
 
-	conn:on("receive", function(sck, payload)
+function send_buffered(...)
+    local n=select("#",...)
+    local t={...}
+    for i=1,n do
+        table.insert(response,t[i])
+    end
+end
 
-                -- Send the HTTP response.
-                function send_response(response)
-                    sck:send(http_preamble .. response)
-                end
+
+function receiver(sck, data)
+    -- triggers the send() function again once the first chunk of data was sent
+    function flush()
+        sck:on("sent", send2)
+        send(sck)
+    end
+
+    function send(localSocket)
+        -- print("send")
+        if #response > 0 then
+            localSocket:send(table.remove(response, 1))
+        else
+            localSocket:close()
+            response = nil
+        end
+    end
+
+    function send2(localSocket)
+        -- print("send2")
+        send(localSocket)
+    end
+
+    function send_response(response)
+	send_buffered(http_preamble, response)
+        flush()
+    end
+
+    function urldecode(str)
+        str = string.gsub (str, "+", " ")
+        str = string.gsub (str, "%%(%x%x)", function(h) return string.char(tonumber(h,16)) end)
+        return str
+    end
+
+
+    function authenticated()
+                    local auth='Basic '..encoder.toBase64('root:'..ftppass)
+                    local a=headers['authorization']
+                    if (not a or a ~= auth) then
+                        send_buffered(http_auth,nil)
+                        return false
+                    end
+                    return true
+    end
+
+    payload=payload..data
+    if (headers == nil) then
+        local pos=payload:find('\r\n\r\n')
+        -- print('looking for headers')
+        if (not pos) then
+            return
+        end
+        -- print('header found',pos)
+        local header=payload:sub(1,pos)
+        for str in string.gmatch(header, "([^\r\n]+)") do
+            if (headers) then
+                local k,v=str:match("([^: ]*)%s*:%s*(.*)")
+                headers[k:lower()]=v
+            else
+                local m,pa,pr=str:match("([^ ]*)%s+([^ ]*)%s+([^ ]*)")
+                headers={method=m,path=pa,protocol=pr}
+            end
+        end
+        content=payload:sub(pos+4)
+        -- print("len",payload:len())
+    end
+    local cl=headers['content-length']
+    if (cl and content:len() < tonumber(cl)) then
+        -- print('not enough data',cl,payload:len())
+       return
+    end
+    if (headers.method == 'POST') then
+        postdata={}
+        for str in string.gmatch(content, "([^&]+)") do
+            local k,v=str:match("([^=]*)=(.*)")
+            postdata[urldecode(k)]=urldecode(v)
+        end
+    end
+    if (headers['path'] == '/config' or headers['path'] == '/help.html') then
+        info={headers=headers,postdata=postdata,conn=conn,buffer=buffer,http_preable=http_preamble}
+        local p='WEB_'..headers['path']:sub(2):gsub('[./]','_')
+        require(p)(info)
+	package.loaded[p]=nil
+        flush()
+	return
+    end
+
 
                 -- HTTP method.
                 method_post = string.match(payload, "POST")
@@ -46,46 +139,6 @@ return function(conn)
                 if rand ~= nil then
                     print("RANDOM")
                     send_response(randomstring)
-                    return
-                end
-
-                -- Serve help page.
-                if help ~= nil then
-                    print("HELP")
-                    help_page = [[
-                        <html>
-                        Commands on this device can be executed remotely by sending HTTP requests + secret-key.
-                        <br><br>
-
-                        Assuming your secret-key is "secret123", if you request <b>http://device/ftp+secret123</b>
-                        the system will start a FTP server and stop the main program loop to free up CPU and RAM resources.
-                        <br><br>
-
-                        Now, you can upload a customized version of <b>config.lua</b> via FTP
-                        with the default FTP user-password combination <b>root / pass123</b> like
-                        <pre>lftp -u root,pass123 IP-or-URL-of-FF-ESP32-device -c 'put config.lua'</pre>
-                        <br><br>
-
-                        All passwords are stored in <b>config.lua</b> and should be changed before deploying the system, of course.
-                        Just reboot the device to apply the new configuration.
-                        <br><br>
-
-                        <h3>Commands</h3>
-                        <b>/ftp+key</b> (starts ftp server and pauses the main MPPT program)<br>
-                        <b>/reboot+key</b><br><b>/telnet+key</b> (starts a password-protected (either webkey or ftppass) telnet LUA/Shell command line interface at port 23). Use root as username for shell and lua for lua interface<br>
-                        <b>/mpptstart+key</b> (restarts the main mppt program. It is automatically paused when FTP starts in order to save CPU and RAM.)<br>
-                        <b>/loadoff+key</b> Turn load off.<br>
-                        <b>/loadon+key</b> Turn load on.<br>
-
-                        <h3>Caveats</h3>
-                        Use your passwords only over a encrypted WiFi and if you trust the network.
-                        FTP and HTTP keys can be sniffed easily, as they are sent unencrypted.
-                        Links are case sensitive. Remember that this is a tiny device with very limited ressources.
-                        If all features are enabled, the device might occasionally run out of memory, crash and reboot.
-
-                        </html>
-                        ]]
-                    send_response(help_page)
                     return
                 end
 
@@ -184,7 +237,8 @@ return function(conn)
                 if encrypted_webkey == true then
                     randomstring, webkeyhash = cryptokey(webkey)
                 end
+end
 
-	end)
-	conn:on("sent", function(sck) sck:close() end)
+return function(conn)
+	conn:on("receive", receiver)
 end
