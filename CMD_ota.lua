@@ -1,10 +1,9 @@
 local cmds_ota={}
+local subcmds_ota={}
 
 function cmds_ota.ota(ctx,subcmd,...)
   return shell.cmd2(ctx,{subcmds_ota},subcmd,...)
 end
-
-local subcmds_ota={}
 
 function subcmds_ota.info(ctx)
   boot_part, next_part, info = otaupgrade.info()
