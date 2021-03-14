@@ -50,7 +50,7 @@ function subcmds_pkg.install(ctx,name)
 				local async=false
 				if (name == 'NodeMCU.bin') then
 					dest='ota:'
-					async=true
+					async=tmr.wdclr == nil
 				end
 				shell.cmd_exec(ctx,shell.cmd_tables(),'wget',{cols[4],dest,cols[3],async})
 				if (dest ~= 'ota:') then

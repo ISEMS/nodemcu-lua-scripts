@@ -34,6 +34,9 @@ function config.parse(filename,cb,param)
 			print("cb failed")
 			return false
 		end
+		if (tmr.wdclr) then
+			tmr.wdclr()
+		end
 	end
 	f:close()
 	print("Success")

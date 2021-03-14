@@ -28,7 +28,7 @@ function subcmds_ota.rollback(ctx)
 end
 
 function subcmds_ota.update(ctx,url,md5)
-  cmds_wget.wget(ctx,url,'ota:',md5,true)
+  cmds_wget.wget(ctx,url,'ota:',md5,tmr.wdclr == nil)
 end
 
 return cmds_ota

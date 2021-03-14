@@ -62,6 +62,9 @@ function cmds_wget.wget(ctx,url,filename,md5,async)
 	end)
 	connection:on("data", function(status, data)
 		ctx.stdout:write(".")
+		if (tmr.wdclr) then
+			tmr.wdclr()
+		end
 		if (hash) then
 			hash:update(data)
 		end
