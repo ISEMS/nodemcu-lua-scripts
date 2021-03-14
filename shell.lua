@@ -110,6 +110,10 @@ function shell.cmd2(ctx,tables,cmd,...)
 end
 
 function shell.cmd_line(ctx,c)
+	if (c:match('[A-Za-z_][0-9A-Za-z_]*=.*')) then
+		pcall(loadstring(c))
+		return 0
+	end
 	local args=shell.words(c)
 	local cmd=table.remove(args,1)
 	if (cmd == nil or cmd == "") then return end
