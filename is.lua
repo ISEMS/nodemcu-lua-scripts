@@ -28,8 +28,9 @@ function printv(v,...)
     end
 end
 
--- Load content from config.lua
-dofile"config.lua"
+function sh()
+    require('shell').run()
+end
 
 adc.setwidth(adc.ADC1, 12)
 
@@ -110,7 +111,7 @@ mppttimer:register(15000, tmr.ALARM_AUTO, function() dofile"mp2.lua" if autorebo
 if autoreboot ~= 1 and nextreboot <= -1 then node.restart() end end)
 mppttimer:start()
 
-if type(mqtt_brokers) == "table" or http_enabled == true then
+if mqtt_enabled then
 mqtttimer = tmr.create()
 mqtttimer:register(65000, tmr.ALARM_AUTO, function() 
                    printv(2,"MQTT telemetry process started")
