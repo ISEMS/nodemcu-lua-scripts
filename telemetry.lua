@@ -67,10 +67,25 @@ end)
     )
 end
 
+local function get_config()
+    mqtt_brokers={}
+    for i=1,2 do
+	local broker={}
+	for _,k in ipairs{'host','port','close','short'} do
+	    broker[k]=_G['mqtt_broker'..i..'_'..k]
+	end
+	if (broker.host ~= nil and broker.host ~= '') then
+	    table.insert(mqtt_brokers,broker)
+	end
+    end
+end
 
-if type(mqtt_brokers) == "table" then
+if mqtt_enabled then
     printv(2,"Sending csv log mqtt data.")
     printv(2,'csvlog',csvlog)
+    if (mqtt_brokers == nil) then
+        get_config()
+    end
     for i,broker in ipairs(mqtt_brokers) do
         if (broker.m) then
             mqtt_publish(broker)

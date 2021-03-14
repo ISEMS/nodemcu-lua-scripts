@@ -36,7 +36,7 @@ lat = 52.52
 long = 13.4
 
 -- Node-ID
-nodeid="ESP32-Meshnode-Schaller1"
+nodeid="ESP32-Meshnode-Unconfigured"
 
 -- Rated capacity of battery in Ampere hours (Ah)
 rated_batt_capacity = 7.2
@@ -46,7 +46,7 @@ solar_module_capacity = 10
 
 -- Average power consumption of the system in Ampere (A)
 average_power_consumption = 0.05
-
+---- WIFI
 -- Accesspoint IP
 ap_ip="192.168.10.10"
 
@@ -58,6 +58,9 @@ ap_gateway="192.168.10.10"
 
 -- Accesspoint WiFi channel
 ap_channel="9"
+
+-- Accesspoint hostname (leave blank for default)
+ap_hostname=""
 
 -- WiFi mode 
 -- One of: 1 = STATION, 2 = SOFTAP, 3 = STATIONAP, 4 = NULLMODE
@@ -79,6 +82,8 @@ sta_ssid="AP2.freifunk.net"
 -- WPA key to connect to the existing AP as WiFi client
 sta_pwd=""
 
+-- Station hostname (leave blank for default)
+sta_hostname=""
 
 -- Enable (true) or disable (false) nodemcu internal debugging output.
 -- Default is (false). (true) might be very verbose and spam the LUA command line
@@ -87,15 +92,25 @@ sta_pwd=""
 enable_osprint=false -- boolean
 
 -- The telemetry channel to send metrics to.
--- See also MQTT and HTTP configuration below.
+-- See also MQTT configuration below.
 telemetry_channel = "/isems/"
 
 -- Telemetry configuration for MQTT
+-- Enable MQTT?
 mqtt_enabled = true -- boolean
-mqtt_broker_port = 1883
-mqtt_broker_host = "api.isems.de"
-
--- Telemetry configuration using HTTP
-http_enabled = false
-telemetry_http_endpoint = "https://isems.mqtthub.net/api/"
-
+-- Host to connect to
+mqtt_broker1_host = "api.isems.de"
+-- Port to connect to
+mqtt_broker1_port = 1883 
+-- Close connection after sending data
+mqtt_broker1_close = true -- boolean
+-- Use only last (newest) data line
+mqtt_broker1_short = false -- boolean
+-- Second host to connect to (leave blank to disable it)
+mqtt_broker2_host = ""
+-- Second Port to connect to
+mqtt_broker2_port = 1883 
+-- Close connection after sending data
+mqtt_broker2_close = false -- boolean
+-- Use only last (newest) data line
+mqtt_broker2_short = true -- boolean
