@@ -19,7 +19,21 @@ local function gen_page(data)
 				send_buffered(s.sep)
 				s.sep=''
 			end
-			send_buffered(data.line:sub(4) .. '<br/>')
+			local text
+			local prefix=''
+			local postfix='<br/>'
+			if (data.line:sub(1,6) == '------') then
+				prefix='<h1>'
+				text=data.line:sub(7)
+				postfix='</h1>'
+			elseif (data.line:sub(1,4) == '----') then
+				prefix='<h2>'
+				text=data.line:sub(5)
+				postfix='</h2>'
+			else
+				text=data.line:sub(4)
+			end
+			send_buffered(prefix..text..postfix)
 		end
 		if (data.line == '-- BEGIN') then
 			s.output=true
