@@ -13,20 +13,22 @@ function config.parse(filename,cb,param)
 		end
 		line=line:sub(1,-2)
 		local data={line=line,param=param}
-		k,v,c=line:match('^%s*([^ ]+)%s*=%s*([^ ]+)%s*(--.*)')
-		if (k ~= nil and v~= nil) then
-			data.key=k
-			data.rawvalue=v
-			data.comment=c
-			c=c:sub(3):match("^%s*(.-)%s*$")
-			if ((v:sub(1,1) == "'" or v:sub(1,1) == '"') and v:sub(-1,-1) == v:sub(1,1)) then
-				v=v:sub(2,-2)
-				if (c == '') then
-					c='string'
+		if (not line:match('^%s*-')) then
+			k,v,c=line:match('^%s*([^ ]+)%s*=%s*([^ ]+)%s*(--.*)')
+			if (k ~= nil and v~= nil) then
+				data.key=k
+				data.rawvalue=v
+				data.comment=c
+				c=c:sub(3):match("^%s*(.-)%s*$")
+				if ((v:sub(1,1) == "'" or v:sub(1,1) == '"') and v:sub(-1,-1) == v:sub(1,1)) then
+					v=v:sub(2,-2)
+					if (c == '') then
+						c='string'
+					end
 				end
+				data.type=c
+				data.value=v
 			end
-			data.type=c
-			data.value=v
 		end
 		if (cb(data) == false) then
 			print("cb failed")
