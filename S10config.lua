@@ -51,7 +51,7 @@ function config.update_cp(from,tmp,to,changes)
 				data.value=s[data.key]
 			end
 			data.rawvalue=(data.type == 'string' or data.type == 'password') and '"'..data.value..'"' or data.value
-			data.line=data.key..'='..data.rawvalue..(data.comment ~= '' and ' '..data.comment or '')
+			data.line=data.key..'='..tostring(data.rawvalue)..(data.comment ~= '' and ' '..data.comment or '')
 		end
 		return f:write(data.line .. '\n')
 	end,changes)
@@ -68,12 +68,20 @@ function config.move_to_old()
 	return file.rename('config.lua','config_old.lua')
 end
 
-function config.update(changes)
+function config.update_template(template,changes)
 	local ret=config.move_to_old()
 	if (ret) then
-		ret=config.update_cp('config_old.lua','config.tmp','config.lua',changes)
+		ret=config.update_cp(template,'config.tmp','config.lua',changes)
 	end
 	return ret
+end
+
+function config.update(changes)
+	return config.update_template('config_old.lua',changes)
+end
+
+function config.save()
+	return config.update_template('config_default.lua',_G)
 end
 
 dofile "board.lua"
