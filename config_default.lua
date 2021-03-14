@@ -2,6 +2,56 @@
 
 -- Lines beginning with two dashes (--) are comments.
 -- BEGIN
+------ Battery and Solar Module
+-- Rated capacity of battery in Ampere hours (Ah)
+rated_batt_capacity = 7.2
+
+-- Rated power rating of the solar module in Watt.
+solar_module_capacity = 10
+
+-- Average power consumption of the system in Ampere (A)
+average_power_consumption = 0.05
+------ WIFI
+-- WiFi mode
+-- One of: 1 = STATION, 2 = SOFTAP, 3 = STATIONAP, 4 = NULLMODE
+wlanmode = 1 -- option 1;2;3;4
+
+---- Station
+-- Wifi station AP SSID (the existing WiFi-AP that the device should connect to as a WiFi client)
+sta_ssid="AP2.freifunk.net"
+
+-- WPA key to connect to the existing AP as WiFi client
+sta_pwd="" --password
+
+-- Station hostname (leave blank for default)
+sta_hostname=""
+
+---- Accesspoint
+-- Accesspoint SSID
+ap_ssid="esp32-isems-ap"
+
+-- Accesspoint WPA key (can not be blank)
+ap_pwd="12345678" -- password
+
+-- Accesspoint WiFi channel
+ap_channel="9"
+
+-- Accesspoint IP
+ap_ip="192.168.10.10"
+
+-- Accesspoint Netmask
+ap_netmask="255.255.255.0"
+
+-- Internet gateway IP
+ap_gateway="192.168.10.10"
+
+-- DNS server IP
+ap_dns="8.8.8.8"
+
+-- Accesspoint hostname (leave blank for default)
+ap_hostname=""
+
+------ System
 -- Secret key for triggering commands via HTTP GET
 -- Beware: Http is unencrypted, so can be sniffed.
 
@@ -35,55 +85,8 @@ lat = 52.52
 -- Longitude of Geolocation
 long = 13.4
 
--- Node-ID
+-- Node-ID (used in telemetry and csv log)
 nodeid="ESP32-Meshnode-Unconfigured"
-
--- Rated capacity of battery in Ampere hours (Ah)
-rated_batt_capacity = 7.2
-
--- Rated power rating of the solar module in Watt. 
-solar_module_capacity = 10
-
--- Average power consumption of the system in Ampere (A)
-average_power_consumption = 0.05
----- WIFI
--- Accesspoint IP
-ap_ip="192.168.10.10"
-
--- Accesspoint Netmask
-ap_netmask="255.255.255.0"
-
--- Internet gateway IP
-ap_gateway="192.168.10.10"
-
--- Accesspoint WiFi channel
-ap_channel="9"
-
--- Accesspoint hostname (leave blank for default)
-ap_hostname=""
-
--- WiFi mode 
--- One of: 1 = STATION, 2 = SOFTAP, 3 = STATIONAP, 4 = NULLMODE
-
-wlanmode = 1 -- option 1;2;3;4
-
--- DNS server IP
-ap_dns="8.8.8.8"
-
--- Accesspoint Password (can not be blank)
-ap_pwd="12345678"
-
--- Accesspoint SSID 
-ap_ssid="esp32-isems-ap"
-
--- Wifi station AP SSID (the existing WiFi-AP that the device should connect to as a WiFi client)
-sta_ssid="AP2.freifunk.net"
-
--- WPA key to connect to the existing AP as WiFi client
-sta_pwd=""
-
--- Station hostname (leave blank for default)
-sta_hostname=""
 
 -- Enable (true) or disable (false) nodemcu internal debugging output.
 -- Default is (false). (true) might be very verbose and spam the LUA command line
@@ -91,6 +94,7 @@ sta_hostname=""
 
 enable_osprint=false -- boolean
 
+---- MQTT
 -- The telemetry channel to send metrics to.
 -- See also MQTT configuration below.
 telemetry_channel = "/isems/"
