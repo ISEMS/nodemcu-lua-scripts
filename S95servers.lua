@@ -31,7 +31,7 @@ end
 
 function server_deactivate(name)
     local s=tcp_servers[name]
-    s:close()
+    pcall(s.close,s)
     tcp_servers[name]=nil
 end
 
