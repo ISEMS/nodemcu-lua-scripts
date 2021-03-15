@@ -14,7 +14,7 @@ average_power_consumption = 0.05
 ------ WIFI
 -- WiFi mode
 -- One of: 1 = STATION, 2 = SOFTAP, 3 = STATIONAP, 4 = NULLMODE
-wlanmode = 1 -- option 1;2;3;4
+wlanmode = 3 -- option 1;2;3;4
 
 ---- Station
 -- Wifi station AP SSID (the existing WiFi-AP that the device should connect to as a WiFi client)
@@ -52,19 +52,17 @@ ap_dns="8.8.8.8"
 ap_hostname=""
 
 ------ System
--- Secret key for triggering commands via HTTP GET
--- Beware: Http is unencrypted, so can be sniffed.
+-- Password for ftp,telnet and web
+-- Beware: Eveything is unencrypted, so can be sniffed.
 
-webkey="secret123" -- password
+webkey="pass123" -- password
 
--- Require sha256'ed one-time webkey (strongly recommended in public networks)
--- This will avoid exposing the webkey over the air.
+-- Require sha256'ed one-time password (strongly recommended in public networks)
+-- This will avoid exposing the password over the air.
+-- However on the web server you have to authenticate every time a page requires
+-- authentication
 
 encrypted_webkey = false -- boolean
-
--- FTP password. Username is "root"
--- Since FTP login and traffic is not encrypted, the password can be sniffed. 
-ftppass='pass123' -- password
 
 -- Autoreboot timer in minutes
 -- The device will reboot once this timer expires.
