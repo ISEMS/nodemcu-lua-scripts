@@ -410,7 +410,6 @@ return function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
       -- since a server can have multiple connections, each connection
       -- has a CNX table to store connection-wide globals.
       FTP.user='root'
-      FTP.pass=ftppass
       local client = FTP.client
       local CNX; CNX = {
         validUser = false,
@@ -439,13 +438,15 @@ return function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
         cmd = cmd:upper()
 
         if   cmd == 'USER' then
-          CNX.validUser = (arg == FTP.user)
+	  CNX.user = arg
+	  CNX.auth = require('auth')
+          CNX.validUser = CNX.auth.validuser(arg)
           msg = CNX.validUser and
                  "331 OK. Password required" or
                  "530 user not found"
 
         elseif CNX.validUser and cmd == 'PASS' then
-          if arg == FTP.pass then
+          if CNX.auth.authenticate(CNX.user, arg, true) then
             CNX.cwd = '/'
             sock:on("receive", function(sock,data)
                 processCommand(CNX,sock,data)
@@ -454,7 +455,7 @@ return function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
           else
             msg = "530 Try again"
           end
-
+	  CNX.auth = nil
         elseif cmd == 'AUTH' then
           msg = "500 AUTH not understood"
 
@@ -469,5 +470,5 @@ return function(sock) -- upval: FTP (, debug, pcall, type, processCommand)
     sock:on("disconnection", CNX.close)
     FTP.client[sock]=CNX
 
-    CNX.send("220 FTP server ready");
+    CNX.send("220 FTP server ready "..require('auth').challenge());
   end -- FTP.server:listen()

@@ -90,9 +90,12 @@ return function(socket)
 	    if (ctl) then
 	        s_output(string.char(0xff)..string.char(0xfc)..string.char(0x01)) -- WONT ECHO
 	    end
-	    if (username == 'lua') then auth=2 end
-	    if (username == 'root') then auth=3 end
-	    if (line ~= ftppass and line ~= webkey) then auth=0 end
+	    if (require('auth').authenticate(username,line,true)) then
+		if (username == 'lua') then auth=2 end
+		if (username == 'root') then auth=3 end
+	    else
+                auth=0
+	    end
 	    if (auth < 2) then
 		s_output("Login incorrect\n")
 		close()
@@ -123,5 +126,5 @@ return function(socket)
     end)
     socket:on("sent", sender)
 
-    s_output("Welcome to NodeMCU world.\nlogin: ")
+    s_output("Welcome to NodeMCU world.\n"..require('auth').challenge().."\nlogin: ")
 end
