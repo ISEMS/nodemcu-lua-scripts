@@ -65,25 +65,6 @@ V_outctrltimer:register(600, tmr.ALARM_AUTO, function() Voutctrl(1) end)
 
 require"mp2"
 
-function cryptokey (webkey, randomstring, webkeyhash)
-
-    randomstring = encoder.toHex(sodium.random.buf(16))
-    randomstringforhash = randomstring .. webkey
-    hashobj = crypto.new_hash("SHA256")
-    hashobj:update(randomstringforhash)
-    digest = hashobj:finalize()
-    webkeyhash = encoder.toHex(digest)
-    print("Randomstringforhash:", randomstringforhash)
-    print("webkey:", webkey)
-    print("Randomstring:", randomstring)
-    print("Digest Hex:", webkeyhash)
-    print("FreeMEM:", node.heap())
-
-return randomstring, webkeyhash
-
-end
-
-
 autoreboot_disabled = 0
 
 if nextreboot == nil then nextreboot = 99999 end
