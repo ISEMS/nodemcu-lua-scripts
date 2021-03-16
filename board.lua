@@ -15,9 +15,10 @@
     Vmpp_min = 12.86
 
 -- The Vcc rail of the ESP32 is the Voltage 
--- reference for the temperature sensor 
+-- reference for the temperature sensor
+-- Measure this for your individual board
 
-    Vcc = 3.03
+    Vcc = 3.055
 
     hardware_version = "1.2"
     firmware_type = "ESP_1B"
