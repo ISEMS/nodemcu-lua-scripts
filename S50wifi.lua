@@ -16,7 +16,7 @@ local function config_ap(channel)
 	wifi.ap.on("start")
 	wifi.ap.on("sta_connected", function(event, info) print("Station connected:  "..info.mac ) end)
 	wifi.ap.config({ssid=ap_ssid, pwd=ap_pwd})
-	wifi.ap.setip({ip=ap_id, netmask=ap_netmask, gateway=ap_gateway, channel=channel, dns=ap_dns})
+	wifi.ap.setip({ip=ap_ip, netmask=ap_netmask, gateway=ap_gateway, channel=channel, dns=ap_dns})
 	if (ap_hostname ~= nil and ap_hostname ~= '') then
 		wifi.ap.sethostname(ap_hostname)
 	end
