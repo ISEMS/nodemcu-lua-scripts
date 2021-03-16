@@ -1,4 +1,3 @@
-print("TELNET")
 return function(socket)
     local fifo = {}
     local fifo_drained = true
@@ -35,6 +34,9 @@ return function(socket)
     end
 
     local function s_output(str)
+	if (str == nil or str == '') then
+	    return
+	end
         table.insert(fifo, str)
         if socket ~= nil and fifo_drained then
             fifo_drained = false

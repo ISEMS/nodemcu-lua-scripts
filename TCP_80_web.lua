@@ -14,7 +14,9 @@ function send_buffered(...)
     local n=select("#",...)
     local t={...}
     for i=1,n do
-        table.insert(response,t[i])
+	if (t[i] ~= '') then
+            table.insert(response,t[i])
+	end
     end
 end
 
