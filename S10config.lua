@@ -96,5 +96,9 @@ if (not file.exists('config.lua')) then
 	config.update_cp('config_default.lua','config.tmp','config.lua',{})
 end
 dofile "config.lua"
-node.osprint(enable_osprint)
-time.settimezone(timezone)
+if (enable_osprint ~= nil) then
+	node.osprint(enable_osprint)
+end
+if (timezone ~= nil) then
+	time.settimezone(timezone)
+end
