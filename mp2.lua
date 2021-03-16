@@ -77,20 +77,55 @@ result = math.floor(result)
 return result
 end
 
+function Vinmeasure (V_in_result)
+    local value3 = 0
+    local V_in_result = 0
+    --GPIO34, V_in
+    value3 = ADCmeasure(6, 15)
+    Vincorrectionfactor = 1 + ((3200 - value3) * 0.000052)
+    printv(3,"Vincorrectionfactor=", Vincorrectionfactor)
+    -- 0.03571 ratio of Voltage divider 1k/27k
+    V_in_result = ((value3 / 4095) * Vref) / 0.035714
+
+    -- Correction factor, taking Schottky diode input loss into account
+    V_in_result = (V_in_result * Vincorrectionfactor) + 300
+
+    V_in_result = math.ceil(V_in_result) 
+    V_in_result = V_in_result / 1000
+
+    return V_in_result
+end
+
+
+function Voutmeasure (V_out_result)
+    local value4 = 0
+    local V_out_result = 0
+    
+    --GPIO33, V_out
+    value4 = ADCmeasure(5, 15)
+    printv(3,"ADC_Vout =", value4)
+    Voutcorrectionfactor = 1 + ((3150 - value4) * 0.000037)
+    printv(3,"Voutcorrectionfactor=", Voutcorrectionfactor)
+    -- 0.0625 ratio of Voltage divider 1k/15k
+    V_out_result = ((value4 / 4095) * Vref) / 0.0625
+    V_out_result = (V_out_result * Voutcorrectionfactor)
+    V_out_result = math.ceil(V_out_result)
+    V_out_result = V_out_result / 1000
+    
+    return V_out_result
+end
+
 function Voutctrl(number_of_steps)
     
     if dac1value == nil then number_of_steps = 0  end 
     
     --print("### Voutctrl active ###\n", "V_out_max_temp:", V_out_max_temp, "V_out:", V_out, "dac1value =", dac1value, "\nnumber_of_steps:", number_of_steps, "Voutctrlcounter =", Voutctrlcounter)
     
-    print("# Voutctrl dac1value =", dac1value)
+    printv(3,"# Voutctrl dac1value =", dac1value)
     
     while number_of_steps > 0 do 
-            val2 = ADCmeasure(5, 3)
-            -- 0.0625 ratio of Voltage divider 1k/15k
-            V_out_mV = ((val2 / 4095) * Vref) / 0.0625
-            V_out_mV = math.ceil(V_out_mV)
-            V_out = V_out_mV / 1000 
+           
+            V_out = Voutmeasure() 
             --print("V_out:", V_out, "V_out_max_temp:", V_out_max_temp)    
             
             if (V_out_max_temp + 0.03) < V_out then 
@@ -119,11 +154,6 @@ function Voutctrl(number_of_steps)
     end
 
 
-
-
-    
-    
-
 --GPIO32, TempSens
 --val3 = adc.read(adc.ADC1, 4)
 val3 = ADCmeasure(4, 2)
@@ -136,7 +166,7 @@ if val3 > 4000 then
     adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
     ptc_resistor_voltage = Vcc
     ptc_resistance = 2000
-    
+    battery_temperature_previous = nil
 end
     
 if val3 < 4000 then
@@ -151,7 +181,7 @@ Vref6dB = Vref * 0.002
 
 --GPIO32, TempSens
 --val3 = adc.read(adc.ADC1, 4)
-val3 = ADCmeasure(4, 150)
+val3 = ADCmeasure(4, 50)
 
 -- print("ADC PTC Temperature sensor measure result:", val3)
 
@@ -166,6 +196,7 @@ ptc_resistor_voltage_mV = ptc_resistor_voltage * 1000
 -- I = (Vcc (2.8V) - ptc_resistor_voltage) / R17
 ptc_resistor_current = (Vcc - ptc_resistor_voltage) / ptc_series_resistance_R17
 ptc_resistance = ptc_resistor_voltage / ptc_resistor_current
+ptc_resistance = math.floor(ptc_resistance)
 
 -- KTY 81-210 is not very accurate. Best accuracy at 40 degrees Celsius
 
@@ -196,7 +227,15 @@ if ptc_resistance < 2000 then
 
 -- print ("Resistance of PTC =", ptc_resistance, "Battery_temperature =", battery_temperature) 
 
-adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
+    adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
+    
+    battery_temperature = math.floor(battery_temperature * 10) / 10
+
+    if battery_temperature_previous == nil then  battery_temperature_previous = battery_temperature end
+    if battery_temperature_previous > battery_temperature then battery_temperature = battery_temperature_previous - 0.05 end
+    if battery_temperature_previous < battery_temperature then battery_temperature = battery_temperature_previous + 0.05 end
+    
+    battery_temperature_previous = battery_temperature
 
 end
 
@@ -240,27 +279,9 @@ V_out_max_temp = math.floor(V_out_max_temp)
 V_out_max_temp = V_out_max_temp / 1000
 
 
---GPIO34, V_in
---val1 = adc.read(adc.ADC1, 6)
-val1 = ADCmeasure(6, 15)
+V_in = Vinmeasure()
 
--- 0.03571 ratio of Voltage divider 1k/27k
-V_in = ((val1 / 4095) * Vref) / 0.035714
-
--- Correction factor 
- V_in = (V_in * 1.1) -- + 300
-
-V_in = math.ceil(V_in) 
-V_in = V_in / 1000
-
---GPIO33, V_out
---val2 = adc.read(adc.ADC1, 5)
-val2 = ADCmeasure(5, 15)
-
--- 0.0625 ratio of Voltage divider 1k/15k
-V_out_mV = ((val2 / 4095) * Vref) / 0.0625
-V_out_mV = math.ceil(V_out_mV)
-V_out = V_out_mV / 1000
+V_out = Voutmeasure()
 
 
 if V_out_max_temp + 0.05 < V_out then Voutctrlcounter = 45000 end
@@ -269,54 +290,46 @@ if V_out_max_temp - 0.3 > V_out then Voutctrlcounter = 0 end
 
 if V_in >= V_out and V_out_max_temp > V_out and Voutctrlcounter <= 0 then 
 
-dac1value= 254
-dac.write(dac.CHANNEL_1, dac1value)
-printv(2,"MPPT - Setting PWM to ", dac1value)
+    dac1value= 254
+    dac.write(dac.CHANNEL_1, dac1value)
+    printv(3,"MPPT - Setting PWM to ", dac1value)
 
 
 
-    count_dac = 1
-    compare_dac = 0
-    while count_dac < 20 do 
-    printv(2,"MPPT - Measure V_in idle - run #", count_dac) 
-    val1 = ADCmeasure(6, 50)
-    if compare_dac == 0 then compare_dac = val1 end
-    if count_dac >= 2 and val1 <= compare_dac then count_dac = 20 end 
-    if count_dac >= 2 and val1 > compare_dac then 
-        compare_dac = val1 end
-        printv(2,"MPPT - Previous ADC measurement value:", compare_dac, "Latest ADC measurement value:", val1)
-        count_dac =  count_dac + 1
-    end
+            count_dac = 1
+            compare_dac = 0
+            
+        while count_dac < 20 do 
+            printv(3,"MPPT - Measure V_in idle - run #", count_dac) 
+            val1 = ADCmeasure(6, 50)
+            if compare_dac == 0 then compare_dac = val1 end
+            if count_dac >= 2 and val1 <= compare_dac then count_dac = 20 end 
+            if count_dac >= 2 and val1 > compare_dac then 
+            compare_dac = val1 end
+            printv(3,"MPPT - Previous ADC measurement value:", compare_dac, "Latest ADC measurement value:", val1)
+            count_dac =  count_dac + 1
+        end
 
 
-V_oc = ((val1 / 4095) * (Vref / 0.03571))
+        V_oc = Vinmeasure()   
+        v_mpp_estimate = V_oc / 1.24
 
--- Correction factor
-V_oc = (V_oc * 1.1)
 
-V_oc = math.ceil(V_oc)
--- print("V_oc without considering Vschottky loss=", V_oc)
--- V_oc = (V_oc / 1000) + 0.3
-v_mpp_estimate = V_oc / 1.24
-v_mpp_estimate = math.floor(v_mpp_estimate)
-v_mpp_estimate = v_mpp_estimate / 1000
-V_oc = (V_oc / 1000) -- + 0.3
-printv(2,"V_oc=", V_oc)
-printv(2,"V_mpp_estimate=", v_mpp_estimate)
-dac1value = (v_mpp_estimate - Vmpp_min) / ((Vmpp_max - Vmpp_min) / 254)
-dac1value = math.floor(dac1value)
-if dac1value > 254 then dac1value = 254 end
-if dac1value < 0 then dac1value = 0 end
-dac.write(dac.CHANNEL_1, dac1value)
-printv(2,"Setting PWM to ", dac1value)
-
+        printv(2,"V_oc=", V_oc)
+        printv(2,"V_mpp_estimate=", v_mpp_estimate)
+        dac1value = (v_mpp_estimate - Vmpp_min) / ((Vmpp_max - Vmpp_min) / 285)
+        dac1value = math.floor(dac1value)
+        if dac1value < 0 then dac1value = 0 end
+        if dac1value > 255 then dac1value = 255 end
+        dac.write(dac.CHANNEL_1, dac1value)
+        printv(2,"Setting PWM to ", dac1value)
 
 end
 
 
 if V_in < V_out then 
     V_oc = 0 
-    dac1value = 127
+    dac1value = 29
     dac.write(dac.CHANNEL_1, dac1value)
 
 end
@@ -336,17 +349,8 @@ if V_out > 12.3 and load_disabled == false then
         printv(2,"Enabled power output")
 end
 
---GPIO33, V_out
---val2 = adc.read(adc.ADC1, 5)
-val2 = ADCmeasure(5, 150)
 
--- 0.0625 ratio of Voltage divider 1k/15k
-V_out = (val2 / 4095) * (Vref / 0.0625)
-
-
-V_out = math.ceil(V_out)
-V_out = V_out / 1000
-
+V_out = Voutmeasure()
 
 
 --print("Measure V_in") 
@@ -357,34 +361,15 @@ printv(2,"V_in measure run 1", val1)
 val1 = ADCmeasure(6, 30)
 printv(2,"V_in measure run 2", val1)
 
-
-
-
-V_in = ((val1 / 4095) * (Vref / 0.03571))
-
--- Correction factor
- V_in = (V_in * 1.1) -- + 300
-
-V_in = math.ceil(V_in)
-V_in = V_in / 1000
+V_in = Vinmeasure()
 
 if V_oc < V_in then 
     
     V_in = V_oc 
-    dac1value= 127
+    dac1value= 60
     dac.write(dac.CHANNEL_1, dac1value)
 
 end
-
--- print("V_in =",val1,"V_out =",val2," TempSens =",val3)
-
---print("Vref =", Vref, "V_oc =",V_oc, "V_in =",V_in,"V  V_out =",V_out,"V  TempSens =",val3, "Battery temperature =", battery_temperature)
-       
--- print("Resistor Voltage =", ptc_resistor_voltage)
-
--- print("PTC resistance =", ptc_resistance)
-
-
 
 
 -- #################################################################################################
@@ -420,10 +405,14 @@ Bit_9  = 0
 Bit_10 = 0
 Bit_11 = 0
 
-printv(2,"#################################################################################################")
-printv(2,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max:", V_out_max, "V_out_max_temp:", V_out_max_temp)
-printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
-printv(2,"#################################################################################################")
+V_out = Voutmeasure()
+
+
+
+printv(2,"##################################################################################")
+printv(1,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max_temp:", V_out_max_temp)
+printv(1,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
+printv(2,"##################################################################################")
 
         charge_status = "Unknown"
        
@@ -513,22 +502,22 @@ printv(2,"health_test_in_progress:", health_test_in_progress, "timestamp:", time
 
 
 if health_test_in_progress == false and localTime["hour"] == 22 and timestamp > 1569859000 then 
-        print("Starting 6 hour discharge check")
+        printv(1,"Starting 6 hour discharge check")
         health_test_in_progress = true
         battery_gauge_start = charge_state_float - 0.5
 end
 
 if health_test_in_progress == true and localTime["hour"] == 4 then
-        print("Finishing 6 hour discharge check")
+        printv(1,"Finishing 6 hour discharge check")
         health_test_in_progress = false
         battery_gauge_stop = charge_state_float                      
         if battery_gauge_start > 100 then battery_gauge_start = 100 end
 
         if battery_gauge_start > 0 and battery_gauge_stop > 0 and average_power_consumption > 0 then health_estimate = (((6 * average_power_consumption) / (((battery_gauge_start - battery_gauge_stop) / 100) * rated_batt_capacity)) * 100) end
 
-        print("battery_gauge_start:", battery_gauge_start, "battery_gauge_stop:", battery_gauge_stop, "average_power_consumption:", average_power_consumption, "rated_batt_capacity:", rated_batt_capacity)
+        printv(1,"battery_gauge_start:", battery_gauge_start, "battery_gauge_stop:", battery_gauge_stop, "average_power_consumption:", average_power_consumption, "rated_batt_capacity:", rated_batt_capacity)
                                      
-        print("Battery health estimate: ", health_estimate)
+        printv(1,"Battery health estimate: ", health_estimate)
 
         health_estimate = math.ceil(health_estimate)
 
