@@ -8,7 +8,7 @@ local headers
 local payload=''
 local content=''
 local response = {}
-local http_preamble = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n'
+local http_preamble = 'HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n'
 
 function send_buffered(...)
     local n=select("#",...)
@@ -64,7 +64,7 @@ function receiver(sck, data)
         if (auth.authenticate(user,pass,true)) then
              return true
 	end
-        local http_auth = 'HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm="'..auth.challenge()..'"\r\nContent-Type: text/html\r\n\r\nAccess denied'
+        local http_auth = 'HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm="'..auth.challenge()..'"\r\nContent-Type: text/html\r\n\r\nAccess denied'
         send_buffered(http_auth,nil)
         return false
     end
