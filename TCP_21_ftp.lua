@@ -329,7 +329,7 @@ ftpDataOpen = function(cxt, dataSocket) -- upval: (debug, tostring, post, pcall)
   debug("Opened data socket %s from %s:%u to %s:%u", tostring(dataSocket),sip,sport,cip,cport )
   cxt.dataSocket = dataSocket
 
-  cxt.dataServer:close()
+  pcall(cxt.dataServer.close,cxt.dataServer)
   cxt.dataServer = nil
 
   local function cleardown(skt,type) -- upval: cxt (, debug, tostring, post, pcall)
