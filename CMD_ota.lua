@@ -8,14 +8,18 @@ end
 function subcmds_ota.info(ctx)
   boot_part, next_part, info = otaupgrade.info()
   ctx.stdout:write("Booted: "..boot_part.."\n")
-  ctx.stdout:write("  Next: "..next_part.."\n")
+  if (next_part) then
+    ctx.stdout:write("  Next: "..next_part.."\n")
+  end
   for p,t in pairs(info) do
     ctx.stdout:write("@ "..p..":".."\n")
     for k,v in pairs(t) do
       ctx.stdout:write("    "..k..": "..v.."\n")
     end
   end
-  ctx.stdout:write("Running version: "..info[boot_part].version.."\n")
+  if (info[boot_part]) then
+    ctx.stdout:write("Running version: "..info[boot_part].version.."\n")
+  end
   return 0
 end
 
