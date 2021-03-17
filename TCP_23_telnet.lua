@@ -6,7 +6,7 @@ return function(socket)
     local username = ''
     local ctx = {}
     local txbytes = 0
-    local sync_limit=2000
+    local sync_limit=20000
 
     local function sender(c,sync)
         if #fifo > 0 then
