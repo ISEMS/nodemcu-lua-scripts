@@ -15,15 +15,12 @@ S10config.lua 4 2eabf0133d2f597e6db046211f3dbb39 https://raw.githubusercontent.c
 S50wifi.lua 3 13f2fd0ddf96f707bc95da42257c00fa https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/e9054959bc2290fe6ba50628826e7406584dc2e8/S50wifi.lua
 S95servers.lua 3 e0d3197278d16fdb2cbdc25c474a7990 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/f303f074805e39ae28609b602ba643b4391b5ebd/S95servers.lua
 shell.lua 5 fd68f7b8a7b124977940bc31cb76cdc0 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/22a06848ebc77af9a54547db9f7a0652dd1eb899/shell.lua
-sim_webserver.lua 1 74608ab241c8f3ba7fd1cc9b94c6b01a https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//sim_webserver.lua
 SSD1306.lua 1 dc09969b82b93ad5b69fb981818c7f8a https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/832ab836479cd95175a04f3e4faf376ae217968e/SSD1306.lua
 SSD1327-waveshare-128x128.lua 1 681a17df5fcfa64e1c7ae79a5e7e4676 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/832ab836479cd95175a04f3e4faf376ae217968e/SSD1327-waveshare-128x128.lua
 TCP_21_ftp.lua 4 f3f52100a030b1d14c12ca784225d16d https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/bbcc748045a613ed04ee80ad72bf897023771cad/TCP_21_ftp.lua
-TCP_23_telnet.lua 5 5ae5330032cdb276a16b41b6347d1edc https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/ba36d933a6202d698e7189c880753383e4117687/TCP_23_telnet.lua
+TCP_23_telnet.lua 6 f10787549755d89e7596a53c32321d23 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/7e45a960df3897741263eb4f574673c937264c14/TCP_23_telnet.lua
 TCP_80_web.lua 6 6bfe5a4b64b13565245dfa7d870a1e1e https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/ba36d933a6202d698e7189c880753383e4117687/TCP_80_web.lua
 telemetry.lua 3 13592053d9029a59476543a94815661d https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/f1ec9f830be248d0679dddec0507e7c52abf9ada/telemetry.lua
-tst2.lua 1 26ee3518e03cc2922c364e916ca22eff https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//tst2.lua
-tst.lua 1 269b3ee29305bc7b8f6de3fe4094a972 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//tst.lua
 vrcal.lua 1 3a9bdbbc1b58d9e6b53458cf5e445f8b https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/832ab836479cd95175a04f3e4faf376ae217968e/vrcal.lua
 WEB_config.lua 2 2bdf320238630057dab8061b115c5831 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/f1b0c259885888b34af5744caaeecec80a84d4fe/WEB_config.lua
 WEB_control.lua 1 836d605c75ad69907d91af66d992f011 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/0133041d691976dc23ce83fc757336249ede2899/WEB_control.lua
