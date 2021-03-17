@@ -9,39 +9,42 @@ local payload=''
 local content=''
 local response = {}
 local http_preamble = 'HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'
+local conn
+local txbytes=0
+local sync_limit=0
+
+local function send(localSocket)
+    if #response > 0 then
+        local str=table.remove(response, 1)
+        txbytes=txbytes+str:len()
+        localSocket:send(str)
+	if (tmr:wdclr()) then
+	    tmr:wdclr()
+	end
+    else
+        txbytes=0
+        localSocket:close()
+    end
+end
 
 function send_buffered(...)
     local n=select("#",...)
     local t={...}
     for i=1,n do
 	if (t[i] ~= '') then
+	    local l=t[i]:len()
             table.insert(response,t[i])
+	    if (txbytes == 0 or txbytes+l < sync_limit) then
+	       tmr:wdclr()
+	       send(conn)
+	    end
 	end
     end
 end
 
 
 function receiver(sck, data)
-    -- triggers the send() function again once the first chunk of data was sent
-    function flush()
-        sck:on("sent", send2)
-        send(sck)
-    end
-
-    function send(localSocket)
-        -- print("send")
-        if #response > 0 then
-            localSocket:send(table.remove(response, 1))
-        else
-            localSocket:close()
-            response = nil
-        end
-    end
-
-    function send2(localSocket)
-        -- print("send2")
-        send(localSocket)
-    end
+    conn=sck
 
     function send_response(response)
 	send_buffered(http_preamble, response)
@@ -68,6 +71,8 @@ function receiver(sck, data)
         send_buffered(http_auth,nil)
         return false
     end
+
+    sck:on("sent", send)
 
     payload=payload..data
     if (headers == nil) then
@@ -114,7 +119,6 @@ function receiver(sck, data)
     end
     require(f)(info)
     package.loaded[f]=nil
-    flush()
 end
 
 return function(conn)
