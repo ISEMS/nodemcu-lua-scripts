@@ -19,8 +19,8 @@ sim_webserver.lua 1 74608ab241c8f3ba7fd1cc9b94c6b01a https://raw.githubuserconte
 SSD1306.lua 1 dc09969b82b93ad5b69fb981818c7f8a https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/832ab836479cd95175a04f3e4faf376ae217968e/SSD1306.lua
 SSD1327-waveshare-128x128.lua 1 681a17df5fcfa64e1c7ae79a5e7e4676 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/832ab836479cd95175a04f3e4faf376ae217968e/SSD1327-waveshare-128x128.lua
 TCP_21_ftp.lua 4 f3f52100a030b1d14c12ca784225d16d https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/bbcc748045a613ed04ee80ad72bf897023771cad/TCP_21_ftp.lua
-TCP_23_telnet.lua 4 6b78d9f3d37b3e35ce7d23c3a45b17b1 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/c40e707820661e1f33d54a3ef7ade38199d235c8/TCP_23_telnet.lua
-TCP_80_web.lua 5 24ac20af2bca0e1bf695e1e3ccdd5a05 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/2c6b40262987f3f625d3cb0d4e3c8a72826a2b90/TCP_80_web.lua
+TCP_23_telnet.lua 5 5ae5330032cdb276a16b41b6347d1edc https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/ba36d933a6202d698e7189c880753383e4117687/TCP_23_telnet.lua
+TCP_80_web.lua 6 6bfe5a4b64b13565245dfa7d870a1e1e https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/ba36d933a6202d698e7189c880753383e4117687/TCP_80_web.lua
 telemetry.lua 3 13592053d9029a59476543a94815661d https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/f1ec9f830be248d0679dddec0507e7c52abf9ada/telemetry.lua
 tst2.lua 1 26ee3518e03cc2922c364e916ca22eff https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//tst2.lua
 tst.lua 1 269b3ee29305bc7b8f6de3fe4094a972 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//tst.lua
