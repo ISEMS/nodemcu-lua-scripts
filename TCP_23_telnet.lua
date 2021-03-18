@@ -1,17 +1,23 @@
 return function(socket)
     local fifo = {}
-    local fifo_drained = true
     local rxbuffer = ''
     local ctl = false
     local auth = 0
     local username = ''
     local ctx = {}
+    local txbytes = 0
+    local sync_limit=20000
 
-    local function sender(c)
+    local function sender(c,sync)
         if #fifo > 0 then
-            c:send(table.remove(fifo, 1))
-        else
-            fifo_drained = true
+	    local str=table.remove(fifo, 1)
+	    txbytes=txbytes+str:len()
+            c:send(str)
+	    if (tmr.wdclr) then
+	       tmr.wdclr()
+	    end
+	else
+	    txbytes=0
         end
     end
 
@@ -38,8 +44,7 @@ return function(socket)
 	    return
 	end
         table.insert(fifo, str)
-        if socket ~= nil and fifo_drained then
-            fifo_drained = false
+	if (txbytes == 0 or txbytes+str:len() < sync_limit) then
             sender(socket)
         end
     end
