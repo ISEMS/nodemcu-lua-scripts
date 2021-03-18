@@ -4,12 +4,14 @@ if encrypted_webkey == true then  randomstring,  webkeyhash = cryptokey (webkey)
 
 if encrypted_webkey == false or encrypted_webkey == nil then webkeyhash = webkey randomstring = "Encryption not enabled." end
 
+
+return function(conn)
+
 local headers
 local payload=''
 local content=''
 local response = {}
 local http_preamble = 'HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'
-local conn
 local txbytes=0
 local sync_limit=0
 
@@ -27,13 +29,20 @@ local function send(localSocket)
     end
 end
 
+
+local function receiver(sck, data)
+
 function send_buffered(...)
+    if (conn == nil) then
+        print("conn is nil")
+    end
     local n=select("#",...)
     local t={...}
     for i=1,n do
-	if (t[i] ~= '') then
-	    local l=t[i]:len()
-            table.insert(response,t[i])
+	if (t[i] ~= nil and t[i] ~= '') then
+	    local s=tostring(t[i])
+	    local l=s:len()
+            table.insert(response,s)
 	    if (txbytes == 0 or txbytes+l < sync_limit) then
 	       tmr:wdclr()
 	       send(conn)
@@ -42,9 +51,6 @@ function send_buffered(...)
     end
 end
 
-
-function receiver(sck, data)
-    conn=sck
 
     function send_response(response)
 	send_buffered(http_preamble, response)
@@ -120,7 +126,5 @@ function receiver(sck, data)
     require(f)(info)
     package.loaded[f]=nil
 end
-
-return function(conn)
-	conn:on("receive", receiver)
+conn:on("receive", receiver)
 end
