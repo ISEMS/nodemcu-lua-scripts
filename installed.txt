@@ -25,7 +25,6 @@ vrcal.lua 1 3a9bdbbc1b58d9e6b53458cf5e445f8b https://raw.githubusercontent.com/d
 WEB_config.lua 3 2a1d7e98f21dac3ea278a58aa4d1ab4f https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/a7783478fd9bf39e99f0088a12084be88471e9cb/WEB_config.lua
 WEB_control.lua 2 7c99e52833f1508bb6b9e1db3b21675b https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/a7783478fd9bf39e99f0088a12084be88471e9cb/WEB_control.lua
 WEB_csv_log.lua 1 b6b7fb4ddfcd5987255058fa6315d06f https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/0133041d691976dc23ce83fc757336249ede2899/WEB_csv_log.lua
-WEB_free.lua 1 a22bc94ec66b5cd4e3e9f28c80ef4cc6 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts//WEB_free.lua
 WEB_help_html.lua 2 0bdd13a8a2d9fcaa276fbfd63742076f https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/38f6467a6677513a96108edec29783a8e95f0b07/WEB_help_html.lua
 WEB_index_html.lua 1 f2752c987357bebb3b2c5ae4d99f0f8f https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/0133041d691976dc23ce83fc757336249ede2899/WEB_index_html.lua
 WEB_random.lua 1 0032660e008ef5cb2fbcfc36eac27ec6 https://raw.githubusercontent.com/dh1df/nodemcu-lua-scripts/0133041d691976dc23ce83fc757336249ede2899/WEB_random.lua
