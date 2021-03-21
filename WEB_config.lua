@@ -46,7 +46,7 @@ return function (info)
 	if (not authenticated()) then
 		return
 	end
-	send_buffered(info.http_preable)
+	send_buffered(info.http_preamble)
 	if (info.headers.method == 'POST') then
 		if (config.update(info.postdata)) then
 			send_buffered("Success, <a href='/'>back to main page</a>",nil)

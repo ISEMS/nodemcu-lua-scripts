@@ -120,7 +120,7 @@ return function(socket)
                 shell.prompt(ctx)
 	    end
         elseif (auth == 2) then
-            node.input(line)
+            node.input(line..'\r')
         elseif (auth == 3) then
             shell.cmd(ctx, line)
             shell.prompt(ctx)

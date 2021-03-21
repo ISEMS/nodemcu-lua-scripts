@@ -76,7 +76,7 @@ return function (info)
 	if (p:match('^/control/disable/')) then
 		startstopstatus('disable',p:sub(18))
 	end
-	send_buffered(info.http_preable)
+	send_buffered(info.http_preamble)
 	for k,v in pairs(items) do
 		local status='disabled'
 		local command='enable'
