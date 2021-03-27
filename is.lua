@@ -58,7 +58,7 @@ if not Vcc then Vcc = 3.07 end
 if not hardware_version then hardware_version = "unknown" end
 if not firmware_type then firmware_type = "unknown" end
 
-pagestring = "mp2.lua not started yet."
+-- pagestring = "mp2.lua not started yet."
 
 V_outctrltimer = tmr.create()
 V_outctrltimer:register(600, tmr.ALARM_AUTO, function() Voutctrl(1) end)

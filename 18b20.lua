@@ -7,7 +7,7 @@ repeat
   count = count + 1
   addr = ow.reset_search(pin)
   addr = ow.search(pin)
-until (addr ~= nil) or (count > 100)
+until (addr ~= nil) or (count > 3)
 if addr == nil then
   print("No more addresses.")
 else
