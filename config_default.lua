@@ -53,7 +53,7 @@ ap_hostname=""
 
 ------ System
 -- Password for ftp,telnet and web
--- Beware: Eveything is unencrypted, so can be sniffed.
+-- Beware: Passwords are send unencrypted, so can be sniffed.
 
 webkey="pass123" -- password
 
@@ -91,6 +91,12 @@ nodeid="ESP32-Meshnode-Unconfigured"
 -- via serial port or telnet shell.
 
 enable_osprint=false -- boolean
+
+-- Verbositiy level of Telnet and serial console messages.
+-- Valid values are 0 (nothing except critical errors)
+-- up to 4 (very verbose for debugging)
+
+verbose=1
 
 ---- MQTT
 -- The telemetry channel to send metrics to.

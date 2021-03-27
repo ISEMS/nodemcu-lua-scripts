@@ -99,7 +99,7 @@ return function(conn)
         end
         if (ctx.headers.method == 'POST') then
             ctx.postdata={}
-            for str in string.gmatch(content, "([^&]+)") do
+            for str in string.gmatch(ctx.content, "([^&]+)") do
                 local k,v=str:match("([^=]*)=(.*)")
                 ctx.postdata[urldecode(k)]=urldecode(v)
             end

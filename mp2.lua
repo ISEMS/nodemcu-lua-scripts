@@ -32,15 +32,6 @@
 -- DAC channel 1 is attached to GPIO25 - DAC channel 2 is attached to GPIO26
 -- Value: 8bit =  0 to 255
 
--- MPP range of FF-OpenMPPT-ESP32 v1.0
---   Vmpp_max = 23.8 
---   Vmpp_min = 14.45
-
-
--- MPP range of FF-OpenMPPT-ESP32 v1.1
---   Vmpp_max = 27.2
---   Vmpp_min = 13.25
-
 -- V_out_max and V_out_max_temp in mV
 V_out_max = 14700
 V_out_max_temp = 14700
@@ -83,7 +74,7 @@ function Vinmeasure (V_in_result)
     --GPIO34, V_in
     value3 = ADCmeasure(6, 15)
     Vincorrectionfactor = 1 + ((3200 - value3) * 0.000052)
-    printv(3,"Vincorrectionfactor=", Vincorrectionfactor)
+    printv(4,"Vincorrectionfactor=", Vincorrectionfactor)
     -- 0.03571 ratio of Voltage divider 1k/27k
     V_in_result = ((value3 / 4095) * Vref) / 0.035714
 
@@ -103,9 +94,9 @@ function Voutmeasure (V_out_result)
     
     --GPIO33, V_out
     value4 = ADCmeasure(5, 15)
-    printv(3,"ADC_Vout =", value4)
+    printv(4,"ADC_Vout =", value4)
     Voutcorrectionfactor = 1 + ((3150 - value4) * 0.000037)
-    printv(3,"Voutcorrectionfactor=", Voutcorrectionfactor)
+    printv(4,"Voutcorrectionfactor=", Voutcorrectionfactor)
     -- 0.0625 ratio of Voltage divider 1k/15k
     V_out_result = ((value4 / 4095) * Vref) / 0.0625
     V_out_result = (V_out_result * Voutcorrectionfactor)
@@ -119,14 +110,18 @@ function Voutctrl(number_of_steps)
     
     if dac1value == nil then number_of_steps = 0  end 
     
+    printv(3,"Voutctrl running.")
+    
     --print("### Voutctrl active ###\n", "V_out_max_temp:", V_out_max_temp, "V_out:", V_out, "dac1value =", dac1value, "\nnumber_of_steps:", number_of_steps, "Voutctrlcounter =", Voutctrlcounter)
     
-    printv(3,"# Voutctrl dac1value =", dac1value)
+    printv(4,"# Voutctrl dac1value =", dac1value)
     
     while number_of_steps > 0 do 
            
             V_out = Voutmeasure() 
             --print("V_out:", V_out, "V_out_max_temp:", V_out_max_temp)    
+            
+             printv(4,"V_out: ", V_out, "V_out_max_temp: ", V_out_max_temp)
             
             if (V_out_max_temp + 0.03) < V_out then 
             dac1value = dac1value + 1
@@ -150,7 +145,10 @@ function Voutctrl(number_of_steps)
             dac.write(dac.CHANNEL_1, dac1value)
             end
             
-            Voutctrlcounter = Voutctrlcounter - 1 
+            Voutctrlcounter = Voutctrlcounter - 1
+            
+            printv(4,"Voutctrlcounter = ", Voutctrlcounter)
+            
     end
 
 
@@ -160,7 +158,7 @@ val3 = ADCmeasure(4, 2)
 
 if val3 > 4000 then 
     
-    print("Error: Temperature sensor not connected")
+    printv(1,"Temperature sensor not detected.")
     battery_temperature = 25.0
     tempsens_missing = 1
     adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
@@ -363,7 +361,7 @@ printv(2,"V_in measure run 2", val1)
 
 V_in = Vinmeasure()
 
-if V_oc < V_in then 
+if V_oc < V_in and Voutctrlcounter <= 0  then 
     
     V_in = V_oc 
     dac1value= 60
@@ -413,7 +411,7 @@ printv(2,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max_temp:", V_out_max_temp
 printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
 -- printv(2,"##################################################################################")
 
-        charge_status = "Unknown"
+        charge_status = ""
        
        --  if V_oc <= V_in then V_in = (V_out - 0.1)  end
         
@@ -444,10 +442,10 @@ printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature 
         -- Detect and handle charge end
         -- At charge end, the battery can no longer take the full energy offered by the solar module. Once we are at 100% charge, the MPPT voltage almost reaches V_oc 
 
-        if V_out >= (V_out_max_temp - 0.05) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_1") end
-
-       
-                    
+        if V_out >= (V_out_max_temp - 0.1) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_1") end
+        
+         if V_out > V_out_max_temp then charge_state = 100 printv(3,"CHG_CON_EST_1-1") end 
+                           
         -- Detect and handle very low charge current
         -- At very low charge current, the V_oc versus V_mpp ratio is smaller than the MPP controller calculates.
 
