@@ -384,8 +384,7 @@ printv(2,"nodeid",nodeid)
 packetrev = "1"
 counter_serial_loop = 0
 powersave = 0
---firmware_type = "FF-ESP-1A"
-pagestring = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Independent Solar Energy Mesh</h1><br><h2>Status of " .. nodeid .. "(local node)</h2><br> No data yet. Come back in a minute."
+-- pagestring = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Independent Solar Energy Mesh</h1><br><h2>Status of " .. nodeid .. "(local node)</h2><br> No data yet. Come back in a minute."
 csvlog = nodeid .. ";1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0"
 quickstart_threshold = 14
 
@@ -410,9 +409,9 @@ V_out = Voutmeasure()
 
 
 printv(2,"##################################################################################")
-printv(1,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max_temp:", V_out_max_temp)
-printv(1,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
-printv(2,"##################################################################################")
+printv(2,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max_temp:", V_out_max_temp)
+printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
+-- printv(2,"##################################################################################")
 
         charge_status = "Unknown"
        
@@ -433,9 +432,7 @@ printv(2,"######################################################################
 -- Charge state estimate
 -- To estimate charge state when discharging is relatively simple, due to low and relatively constant load.
        
-       -- print("we are at charge state estimate")
-       -- print("V_in:", V_in, "V_out:", V_out)
-        
+  
         if V_in < V_out and V_out > 12.60 then charge_state = (95 + ((V_out - 12.6) * 20)) end 
 
         if V_in < V_out and V_out < 12.60 then charge_state = (10 + ((V_out - 11.6) * 85)) end
@@ -447,23 +444,23 @@ printv(2,"######################################################################
         -- Detect and handle charge end
         -- At charge end, the battery can no longer take the full energy offered by the solar module. Once we are at 100% charge, the MPPT voltage almost reaches V_oc 
 
-        if V_out >= (V_out_max_temp - 0.05) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) end
+        if V_out >= (V_out_max_temp - 0.05) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_1") end
 
        
                     
         -- Detect and handle very low charge current
         -- At very low charge current, the V_oc versus V_mpp ratio is smaller than the MPP controller calculates.
 
-        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.22 > (V_oc / V_in) and V_out > 12.6 then charge_state = (85 + ((V_out - 12.6) * 25)) end
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out > 12.6 then charge_state = (85 + ((V_out - 12.6) * 25)) printv(3,"CHG_CON_EST_2") end
         
-        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.22 > (V_oc / V_in) and V_out <= 12.6 then charge_state = (10 + ((V_out - 11.6) * 75)) end 
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out <= 12.6 then charge_state = (10 + ((V_out - 11.6) * 75)) printv(3,"CHG_CON_EST_3") end 
         
         
                     
         -- Detect and handle considerable charge current
         -- At considerable charge current, the V_oc versus V_mpp ratio matches the ratio the MPP controller calculates. Unless the current doesn't go down close to zero, we haven't reached charge limit.
 
-        if V_out < (V_out_max_temp - 0.05) and 1.22 < (V_oc / V_in) then charge_state = (V_out - (V_out_max_temp * 0.85)) / ((V_out_max_temp - (V_out_max_temp * 0.85)) / 90) end
+        if V_out < (V_out_max_temp - 0.05) and 1.18 <= (V_oc / V_in) then charge_state = (V_out - (V_out_max_temp * 0.85)) / ((V_out_max_temp - (V_out_max_temp * 0.85)) / 90) printv(3,"CHG_CON_EST_4")  end
 
 
        
@@ -476,6 +473,8 @@ if charge_state > charge_state_float then charge_state_float = charge_state_floa
 
 if charge_state < charge_state_float and  V_out > 0 and V_out < 12.9 then charge_state_float = charge_state_float - 0.1 end
 
+if charge_state_float < 0 then charge_state_float = 0 end 
+
 charge_state_int = math.ceil(charge_state_float)
 
 
@@ -484,9 +483,6 @@ charge_state_int = math.ceil(charge_state_float)
 if charge_state_int > 100 then charge_state_int = 100 end
 
 if charge_state_int == 100 then charge_status = "Fully charged" Bit_2 = 1 Bit_0 = 0 end 
-
-if charge_state_int < 0 then charge_state_int = 0 end
-
 
        
 -- Battery health estimate calculation
@@ -566,51 +562,9 @@ freeRAM = node.heap()
 
 update_log()
 
-
-
 node_uptime = math.floor((node.uptime() / 1000000))
 
--- HTML output
-        pagestring = "<h1>Independent Solar Energy Mesh</h1><br><h2>Status of " .. nodeid
-        pagestring = pagestring  .. " (local node)</h2><br><br>Summary: " .. charge_status  .. ". " .. system_status
-        pagestring = pagestring  .. "<br>Charge state: " 
-        pagestring = pagestring .. charge_state_int
-        pagestring = pagestring .. "%<br>Next scheduled reboot by watchdog in: "
-        pagestring = pagestring .. nextreboot
-        pagestring = pagestring .. " minutes<br>Battery voltage: "
-        pagestring = pagestring .. V_out
-        pagestring = pagestring .. " Volt<br>Temperature corrected charge end voltage: "
-        pagestring = pagestring .. V_out_max_temp
-        pagestring = pagestring .. " Volt<br>Battery temperature: "
-        pagestring = pagestring .. battery_temperature
-        pagestring = pagestring .. "&deg;C<br>Battery health estimate: "
-        pagestring = pagestring .. health_estimate
-        pagestring = pagestring .. "%<br>Power save level: "
-        pagestring = pagestring .. powersave
-        pagestring = pagestring .. "<br>Solar panel open circuit voltage: "
-        pagestring = pagestring .. V_oc
-        pagestring = pagestring .. " Volt<br>MPP-Tracking voltage: "
-        pagestring = pagestring .. V_in
-        pagestring = pagestring .. " Volt<br>Low voltage disconnect voltage: "
-        pagestring = pagestring .. low_voltage_disconnect
-        pagestring = pagestring  .. " Volt<br>Rated battery capacity (when new): "
-        pagestring = pagestring  .. rated_batt_capacity
-        pagestring = pagestring  ..  " Ah<br>Rated solar module power: "
-        pagestring = pagestring .. solar_module_capacity
-        pagestring = pagestring .. " Watt<br>Unix-Timestamp: "
-        pagestring = pagestring .. timestamp
-        pagestring = pagestring .. " (local time)<br>Solar controller type and firmware: "
-        pagestring = pagestring .. firmware_type
-        pagestring = pagestring  .. "<br>Latitude: "
-        pagestring = pagestring .. lat .. "<br>Longitude: "
-        pagestring = pagestring .. long
-        pagestring = pagestring  .. "<br>Status code: 0x"
-        pagestring = pagestring .. statuscode 
-        pagestring = pagestring .. "<br>Free RAM in Bytes: " .. freeRAM
-        pagestring = pagestring .. "<br>Uptime in seconds: " .. node_uptime   
-        pagestring = pagestring .. "</h3> <h2> <a href=\"help.html\">Howto</a></h2>"
-       
--- print(pagestring)
+
 
 if Voutctrlcounter > 0  then V_outctrltimer:start()  end
 
