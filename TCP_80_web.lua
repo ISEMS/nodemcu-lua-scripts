@@ -105,7 +105,7 @@ return function(conn)
             end
         end
         local p=ctx.headers['path']
-        print("PATH",p)
+        printv(2,"PATH",p)
         local f='WEB_'..p:sub(2):gsub('[./]','_')
         if (not file.exists(f..'.lua')) then
             f='WEB_index_html'
