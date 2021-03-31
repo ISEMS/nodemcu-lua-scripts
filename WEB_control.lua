@@ -61,15 +61,7 @@ return function (info)
                return
         end
 	local p=info.headers.path
-	if (p == '/control/reboot') then
-		send_response("Rebooting in 2 seconds. Will be back in 8 seconds.")
-		reboottimer = tmr.create()
-		reboottimer:register(2000, tmr.ALARM_SINGLE, function()
-			node.restart()
-		end)
-                reboottimer:start()
-		return
-	end
+
 	if (p:match('^/control/enable/')) then
 		startstopstatus('enable',p:sub(17))
 	end

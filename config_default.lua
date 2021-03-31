@@ -96,7 +96,7 @@ enable_osprint=false -- boolean
 -- Valid values are 0 (nothing except critical errors)
 -- up to 4 (very verbose for debugging)
 
-verbose=1
+verbose=1 -- option 1;2;3;4
 
 ---- MQTT
 -- The telemetry channel to send metrics to.

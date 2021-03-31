@@ -160,7 +160,7 @@ if val3 > 4000 then
     
     printv(1,"Temperature sensor not detected.")
     battery_temperature = 25.0
-    tempsens_missing = 1
+    local tempsens_missing = 1
     adc.setup(adc.ADC1, 4, adc.ATTEN_11db)
     ptc_resistor_voltage = Vcc
     ptc_resistance = 2000
@@ -175,7 +175,7 @@ adc.setup(adc.ADC1, 4, adc.ATTEN_6db)
 -- print("Temperature sensor connected")
 
 -- Vref11dB = Vref * 0.0034
-Vref6dB = Vref * 0.002
+local Vref6dB = Vref * 0.002
 
 --GPIO32, TempSens
 --val3 = adc.read(adc.ADC1, 4)
@@ -183,16 +183,16 @@ val3 = ADCmeasure(4, 50)
 
 -- print("ADC PTC Temperature sensor measure result:", val3)
 
-ptc_resistor_voltage = (val3 / 4095) * Vref6dB
+local ptc_resistor_voltage = (val3 / 4095) * Vref6dB
 
 ptc_resistor_voltage = ptc_resistor_voltage / 1.112
 
 -- print("PTC resistor Voltage =", ptc_resistor_voltage)
 
-ptc_resistor_voltage_mV = ptc_resistor_voltage * 1000
+local ptc_resistor_voltage_mV = ptc_resistor_voltage * 1000
 
 -- I = (Vcc (2.8V) - ptc_resistor_voltage) / R17
-ptc_resistor_current = (Vcc - ptc_resistor_voltage) / ptc_series_resistance_R17
+local ptc_resistor_current = (Vcc - ptc_resistor_voltage) / ptc_series_resistance_R17
 ptc_resistance = ptc_resistor_voltage / ptc_resistor_current
 ptc_resistance = math.floor(ptc_resistance)
 
@@ -205,9 +205,9 @@ ptc_resistance = math.floor(ptc_resistance)
 -- Correcting non-linearity of KTY81-210 
  
 if ptc_resistance >= 2000 then 
- deviation_K = (ptc_resistance - 2000) / 16.4
- deviation_factor = (deviation_K * 0.0022) + 1
- corrected_deviation_factor = 16 * deviation_factor
+ local deviation_K = (ptc_resistance - 2000) / 16.4
+ local deviation_factor = (deviation_K * 0.0022) + 1
+ local corrected_deviation_factor = 16 * deviation_factor
  battery_temperature = 25 + ((ptc_resistance - 2000) / corrected_deviation_factor)
  end
  
@@ -382,7 +382,6 @@ printv(2,"nodeid",nodeid)
 packetrev = "1"
 counter_serial_loop = 0
 powersave = 0
--- pagestring = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Independent Solar Energy Mesh</h1><br><h2>Status of " .. nodeid .. "(local node)</h2><br> No data yet. Come back in a minute."
 csvlog = nodeid .. ";1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0"
 quickstart_threshold = 14
 
@@ -567,3 +566,16 @@ node_uptime = math.floor((node.uptime() / 1000000))
 if Voutctrlcounter > 0  then V_outctrltimer:start()  end
 
 if disp ~= nil then dofile"display.lua" end
+
+ Bit_0  = nil
+ Bit_1  = nil
+ Bit_2  = nil
+ Bit_3  = nil
+ Bit_4  = nil
+ Bit_5  = nil
+ Bit_6  = nil 
+ Bit_7  = nil  
+ Bit_8  = nil
+ Bit_9  =  nil
+ Bit_10 = nil  
+ Bit_11 = nil 
