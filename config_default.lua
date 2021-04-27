@@ -109,9 +109,8 @@ mqtt_enabled = true -- boolean
 mqtt_broker1_host = "api.isems.de"
 -- Port to connect to
 mqtt_broker1_port = 1883
--- The telemetry channel to send our data to.
--- Note there is no "/" at the beginning!
-mqtt_broker1_channel = "isems/"
+-- The telemetry channel to send our data to. 
+mqtt_broker1_channel = "/isems/"
 -- Close connection after sending data?
 -- Recommended if setting up two brokers
 mqtt_broker1_close = true -- boolean
