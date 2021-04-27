@@ -16,7 +16,7 @@ disp:drawStr(122, 20, "V")
 disp:drawStr(0, 30, "V_in:")
 disp:drawStr(84, 30, V_in)
 disp:drawStr(122, 30, "V")
-disp:drawStr(0, 40, "Temperature: ")
+disp:drawStr(0, 40, "Tempature: ")
 disp:drawStr(84, 40, battery_temperature)
 disp:drawStr(122, 40, "C")
 
@@ -39,7 +39,7 @@ disp:drawStr(34, 75, sta_ssid)
 disp:drawStr(0, 85, "IP:")
 disp:drawStr(38, 85, localstaip)
 
-disp:drawStr(0, 100, "T_outside: ")
+disp:drawStr(0, 100, "T_i2c: ")
 disp:drawStr(72, 100, ow_temp1)
 disp:drawStr(122, 100, "C")
 
@@ -53,7 +53,7 @@ disp:drawStr(34, 75, ap_ssid)
 disp:drawStr(0, 85, "IP:")
 disp:drawStr(38, 85, ap_ip)
 
-disp:drawStr(0,  100, "T_outside: ")
+disp:drawStr(0,  100, "T_i2c: ")
 disp:drawStr(72, 100, ow_temp1)
 disp:drawStr(122, 100, "C")
 
@@ -74,8 +74,7 @@ elseif
 
 wlanmode == 4 then 
 disp:drawStr(66, 62, "off")
-
-disp:drawStr(0, 80, "T_outside: ")
+disp:drawStr(0, 80, "T_i2c: ")
 disp:drawStr(72, 80, ow_temp1)
 disp:drawStr(122, 80, "C")
 

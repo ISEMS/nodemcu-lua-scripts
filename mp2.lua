@@ -248,12 +248,10 @@ function get_statuscode()
 end
 
 function update_log()
-    -- print("Creating csvlog.")
       
     local ffopenmppt_log = nodeid .. ";" .. packetrev .. ";" .. timestamp .. ";" .. firmware_type .. ";" .. nextreboot .. ";" .. powersave .. ";".. V_oc .. ";".. V_in .. ";".. V_out .. ";".. charge_state_int .. ";" .. health_estimate .. ";".. battery_temperature .. ";".. low_voltage_disconnect .. ";".. V_out_max_temp .. ";" .. rated_batt_capacity .. ";".. solar_module_capacity .. ";".. lat .. ";" .. long .. ";" ..  statuscode
 
-    -- print("CSV payload:", ffopenmppt_log)
-
+    
     if(csvs == nil) then
         csvs={}
     end
@@ -386,8 +384,6 @@ csvlog = nodeid .. ";1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0"
 quickstart_threshold = 14
 
 
-charge_state = 0
-
 Bit_0  = 0
 Bit_1  = 0
 Bit_2  = 0
@@ -408,11 +404,8 @@ V_out = Voutmeasure()
 printv(2,"##################################################################################")
 printv(2,"V_in (mpp):", V_in, "V_out:", V_out, "V_out_max_temp:", V_out_max_temp)
 printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature =", battery_temperature)
--- printv(2,"##################################################################################")
 
         charge_status = ""
-       
-       --  if V_oc <= V_in then V_in = (V_out - 0.1)  end
         
         if (V_in >= V_out and V_out ~= 0 and V_oc >= V_in) then charge_status = "Charging" Bit_0 = 1 end
         
@@ -426,7 +419,12 @@ printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature 
 
         if (V_out_max_temp == 0.0) then V_out_max_temp = 14.2 end 
 
--- Charge state estimate
+-- State of charge estimate
+        
+        charge_increment = 0.05
+        
+        if not V_out_old then V_out_old = V_out end
+        
 -- To estimate charge state when discharging is relatively simple, due to low and relatively constant load.
        
   
@@ -434,45 +432,61 @@ printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature 
 
         if V_in < V_out and V_out < 12.60 then charge_state = (10 + ((V_out - 11.6) * 85)) end
         
- 
 
-        -- Estimate while charging without measuring current – tricky!
+
+-- Estimate SoC while charging without measuring current – tricky!
 
         -- Detect and handle charge end
         -- At charge end, the battery can no longer take the full energy offered by the solar module. Once we are at 100% charge, the MPPT voltage almost reaches V_oc 
 
-        if V_out >= (V_out_max_temp - 0.1) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_1") end
-        
+        if V_out >= (V_out_max_temp - 0.2) and V_oc >= V_in then charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_1") end
+         
          if V_out > V_out_max_temp then charge_state = 100 printv(3,"CHG_CON_EST_1-1") end 
-                           
+                
+         
         -- Detect and handle very low charge current
         -- At very low charge current, the V_oc versus V_mpp ratio is smaller than the MPP controller calculates.
 
-        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out > 12.6 then charge_state = (85 + ((V_out - 12.6) * 25)) printv(3,"CHG_CON_EST_2") end
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out > 12.6 then charge_state = (85 + ((V_out - 12.6) * 25)) printv(3,"CHG_CON_EST_2") charge_increment = 0.02 end
         
-        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out <= 12.6 then charge_state = (10 + ((V_out - 11.6) * 75)) printv(3,"CHG_CON_EST_3") end 
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and 1.18 > (V_oc / V_in) and V_out <= 12.6 then charge_state = (10 + ((V_out - 11.6) * 75)) printv(3,"CHG_CON_EST_2_1") charge_increment = 0.02 end
         
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and V_in <= 15 and V_out <= 12.6 then charge_state = (10 + ((V_out - 11.6) * 85))  printv(3,"CHG_CON_EST_2_2") charge_increment = 0.02 end
         
-                    
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and V_in <= 15 and V_out > 12.6 then charge_state = (85 + ((V_out - 12.6) * 25)) printv(3,"CHG_CON_EST_2_3") charge_increment = 0.02 end
+        
+        -- Detect if solar panel charge current is less than consumer current. 
+
+        if V_out < (V_out_max_temp - 0.05) and V_in > V_out and V_in >= 15  and 1.18 < (V_oc / V_in)  and V_out <= 13.2 then 
+        charge_state = (((V_out - 11.6) / ((V_out_max_temp - 11.6) /100)) * (V_in / (V_oc - 0.5) )) printv(3,"CHG_CON_EST_2_3") 
+        charge_increment = 0.02 end
+        
         -- Detect and handle considerable charge current
         -- At considerable charge current, the V_oc versus V_mpp ratio matches the ratio the MPP controller calculates. Unless the current doesn't go down close to zero, we haven't reached charge limit.
 
-        if V_out < (V_out_max_temp - 0.05) and 1.18 <= (V_oc / V_in) then charge_state = (V_out - (V_out_max_temp * 0.85)) / ((V_out_max_temp - (V_out_max_temp * 0.85)) / 90) printv(3,"CHG_CON_EST_4")  end
+        if V_out < (V_out_max_temp - 0.2) and 1.18 <= (V_oc / V_in) and V_in > 15 and V_out > 13.2 and V_out_old < V_out then 
+        charge_state = (((V_out - 12.0) / ((V_out_max_temp - 12.0) / 100)) * (V_in / V_oc ))
+        charge_increment = 0.25 printv(3,"CHG_CON_EST_3")  end
 
-
+        
+if not charge_state then charge_state = 50 end 
        
-if  charge_state_float == nil then charge_state_float = charge_state end
-
+if not charge_state_float then charge_state_float = charge_state end
 
 -- Sanity check of battery level gauge: Move slowly
 
-if charge_state > charge_state_float then charge_state_float = charge_state_float + 0.1 end
+if charge_state > charge_state_float then charge_state_float = charge_state_float + charge_increment end
 
-if charge_state < charge_state_float and  V_out > 0 and V_out < 12.9 then charge_state_float = charge_state_float - 0.1 end
+if charge_state < charge_state_float and V_out > 0 and V_out < 12.9 and V_out_old > V_out then charge_state_float = charge_state_float - charge_increment  end
 
 if charge_state_float < 0 then charge_state_float = 0 end 
+if charge_state_float > 100 then charge_state_float = 100 end
 
 charge_state_int = math.ceil(charge_state_float)
+
+printv(4, "SoC now, SoC avg: ", charge_state, charge_state_float, "\n V_out_old, V_out now", V_out_old, V_out)
+
+V_out_old = V_out
 
 
 -- if V_out >= (V_out_max_temp - 0.05) and V_in >= (V_oc * 0.95) and V_in > 16.00 then charge_status = "Fully charged" Bit_2 = 1 end
@@ -521,7 +535,6 @@ end
        
 -- System health report
        
-
 
 critical_storage_charge_ratio = 5.0
 
@@ -576,6 +589,8 @@ if disp ~= nil then dofile"display.lua" end
  Bit_6  = nil 
  Bit_7  = nil  
  Bit_8  = nil
- Bit_9  =  nil
+ Bit_9  = nil
  Bit_10 = nil  
  Bit_11 = nil 
+
+-- dofile"soc.lua"
