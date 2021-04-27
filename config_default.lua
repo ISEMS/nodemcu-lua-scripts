@@ -126,6 +126,8 @@ mqtt_broker2_host = "isems.mqtthub.net"
 -- Port to connect to
 mqtt_broker2_port = 1883
 -- Telemetry channel to send metrics to.
+-- Note: This MQTT server doesn't like "/" 
+-- at the beginning of the channel 
 mqtt_broker2_channel = "isems/testdrive/foobar/"
 -- Close connection after sending data
 -- Recommended if setting up two brokers
