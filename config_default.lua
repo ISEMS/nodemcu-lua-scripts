@@ -98,27 +98,41 @@ enable_osprint=false -- boolean
 
 verbose=1 -- option 1;2;3;4
 
----- MQTT
--- The telemetry channel to send metrics to.
--- See also MQTT configuration below.
-telemetry_channel = "/isems/"
+-- Additional ds18b20 I2C temperature sensor connected to GPIO21
+ow18b20=false  -- boolean
 
--- Telemetry configuration for MQTT
+---- MQTT-Telemetry configuration
 -- Enable MQTT?
 mqtt_enabled = true -- boolean
--- Host to connect to
+
+-- MQTT broker to connect to
 mqtt_broker1_host = "api.isems.de"
 -- Port to connect to
-mqtt_broker1_port = 1883 
--- Close connection after sending data
+mqtt_broker1_port = 1883
+-- The telemetry channel to send our data to.
+-- Note there is no "/" at the beginning!
+mqtt_broker1_channel = "isems/"
+-- Close connection after sending data?
+-- Recommended if setting up two brokers
 mqtt_broker1_close = true -- boolean
--- Use only last (newest) data line
+-- Use only last (newest) csv data line
+-- If set to false, the last five csv data lines are send
+-- not used if we send json data
 mqtt_broker1_short = false -- boolean
--- Second host to connect to (leave blank to disable it)
-mqtt_broker2_host = ""
--- Second Port to connect to
-mqtt_broker2_port = 1883 
+-- Send JSON data instead of CSV data
+mqtt_broker1_json = false -- boolean
+
+-- Second MQTT broker to connect to (leave blank to disable it)
+mqtt_broker2_host = "isems.mqtthub.net"
+-- Port to connect to
+mqtt_broker2_port = 1883
+-- Telemetry channel to send metrics to.
+mqtt_broker2_channel = "isems/testdrive/foobar/"
 -- Close connection after sending data
-mqtt_broker2_close = false -- boolean
--- Use only last (newest) data line
-mqtt_broker2_short = true -- boolean
+-- Recommended if setting up two brokers
+mqtt_broker2_close = true -- boolean
+-- Use only last (newest) csv data line
+-- not used if we send json data
+mqtt_broker2_short = false -- boolean
+-- Send JSON data instead of CSV data
+mqtt_broker2_json = true -- boolean
