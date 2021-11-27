@@ -1,5 +1,5 @@
--- dofile"SSD1306.lua"
-dofile"SSD1327-waveshare-128x128.lua"
+ dofile"SSD1306.lua"
+--dofile"SSD1327-waveshare-128x128.lua"
 
 function run_file(file)
     print("Starting",file)

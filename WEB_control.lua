@@ -39,7 +39,8 @@ local function startstopstatus(cmd,what)
 			server_deactivate(item)
 		end
 		if (type(item) == 'userdata') then
-			tmr:stop()	
+			--tmr:stop()
+                    mppttimer:stop()
 		end
 	end
 	if (cmd == 'enable') then
@@ -47,7 +48,8 @@ local function startstopstatus(cmd,what)
 			server_activate(item)
 		end
 		if (type(item) == 'userdata') then
-			tmr:start()	
+			--tmr:start()
+                    mppttimer:start()
 		end
 	end
 	if (type(item) == 'function') then

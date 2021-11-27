@@ -18,7 +18,27 @@
 -- reference for the temperature sensor
 -- Measure this for your individual board
 
-    Vcc = 3.055
-
+    Vcc = 3.0415
+    
     hardware_version = "1.2"
-    firmware_type = "ESP_1B"
+    firmware_type = "ESP_2.0"
+
+--  Is Schottky Diode D6 (Solar input) present on board? 
+--  Choose "false" if D6 pads are bridged, else "true" if D6 is populated.
+--  D6 burns some solar power and heats the board.
+--  At 5 Ampere Solar input current, the D6 loss amounts to 2 Watt.
+
+--  D6 makes the system safer but less efficient.
+--  Power rating of the board is 120 Watt Solar input (U_mpp) *without* D6
+--  Power rating *with* D6 populated is 100 Watt Solar input (U_mpp)
+--  If D6 pads are bridged, the Solar+ connector carries power
+--  from the battery. In theory, this can cause a small discharge
+--  current at night.
+
+--  Use this efficiency modification with caution.
+--  Do not reverse polarity when connecting a solar module or 
+--  short the solar module wires!
+
+
+    D6_loaded=true
+ 

@@ -12,11 +12,11 @@ local function config_sta()
 	end
 end
 
-local function config_ap(channel)
+local function config_ap()
 	wifi.ap.on("start")
 	wifi.ap.on("sta_connected", function(event, info) print("Station connected:  "..info.mac ) end)
-	wifi.ap.config({ssid=ap_ssid, pwd=ap_pwd})
-	wifi.ap.setip({ip=ap_ip, netmask=ap_netmask, gateway=ap_gateway, channel=channel, dns=ap_dns})
+	wifi.ap.config({ssid=ap_ssid, pwd=ap_pwd, channel=ap_channel})
+	wifi.ap.setip({ip=ap_ip, netmask=ap_netmask, gateway=ap_gateway, dns=ap_dns})
 	if (ap_hostname ~= nil and ap_hostname ~= '') then
 		wifi.ap.sethostname(ap_hostname)
 	end
@@ -34,11 +34,12 @@ wifi.start()
 if wlanmode == 1 or wlanmode == 3 then
 	config_sta()
 end
-if wlanmode == 2 then
-	config_ap(ap_channel)
+if wlanmode == 2 or wlanmode == 3 then
+	config_ap()
 end
-if wlanmode == 3 then
-	config_ap(nil)
+if wlanmode == 4 then
+	--config_ap(nil)
+    print("Wifi is disabled")
 end
 
 uplinktimer = tmr.create()

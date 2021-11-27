@@ -1,3 +1,4 @@
+
 -- Configuration file for ESP-ISEMS-nodeid
 
 -- Lines beginning with two dashes (--) are comments.
@@ -103,7 +104,7 @@ ow18b20=false  -- boolean
 
 ---- MQTT-Telemetry configuration
 -- Enable MQTT?
-mqtt_enabled = true -- boolean
+mqtt_enabled = false -- boolean
 
 -- MQTT broker to connect to
 mqtt_broker1_host = "api.isems.de"

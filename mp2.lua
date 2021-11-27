@@ -33,14 +33,17 @@
 -- Value: 8bit =  0 to 255
 
 -- V_out_max and V_out_max_temp in mV
-V_out_max = 14700
-V_out_max_temp = 14700
+if not V_out_max then  V_out_max = 14100 end 
+if not V_out_max_temp then V_out_max_temp = V_out_max end
 
 -- V_oc = 0
 -- Vcc = 3.07
 
 ptc_series_resistance_R17 = 2200
 low_voltage_disconnect = 11.90
+
+if D6_loaded == nil then D6_loaded = true printv(4, "Schottky diode D6 info missing in board.lua\n Assuming it is present") end
+if D6_loaded == true then D6loss = 300 else  D6loss = 0 printv(4, "D6 not present") end 
 
 timestamp = time.get()
 
@@ -79,7 +82,7 @@ function Vinmeasure (V_in_result)
     V_in_result = ((value3 / 4095) * Vref) / 0.035714
 
     -- Correction factor, taking Schottky diode input loss into account
-    V_in_result = (V_in_result * Vincorrectionfactor) + 300
+    V_in_result = (V_in_result * Vincorrectionfactor) + D6loss
 
     V_in_result = math.ceil(V_in_result) 
     V_in_result = V_in_result / 1000
@@ -348,21 +351,19 @@ end
 
 V_out = Voutmeasure()
 
-
---print("Measure V_in") 
 val1 = ADCmeasure(6, 200)
 printv(2,"V_in measure run 1", val1)
-
---print("Measure V_in") 
+ 
 val1 = ADCmeasure(6, 30)
 printv(2,"V_in measure run 2", val1)
 
 V_in = Vinmeasure()
 
-if V_oc < V_in and Voutctrlcounter <= 0  then 
+if V_oc < V_out + 0.2 and Voutctrlcounter <= 0  then 
     
-    V_in = V_oc 
-    dac1value= 60
+    V_in = 0
+    V_oc = 0 
+    dac1value= 0
     dac.write(dac.CHANNEL_1, dac1value)
 
 end
@@ -434,7 +435,7 @@ printv(2,"V_oc=", V_oc, "PTC resistance=", ptc_resistance, "Battery_temperature 
         
 
 
--- Estimate SoC while charging without measuring current – tricky!
+-- Estimate SoC while charging without measuring current --  tricky!
 
         -- Detect and handle charge end
         -- At charge end, the battery can no longer take the full energy offered by the solar module. Once we are at 100% charge, the MPPT voltage almost reaches V_oc 
@@ -480,11 +481,10 @@ if charge_state > charge_state_float then charge_state_float = charge_state_floa
 if charge_state < charge_state_float and V_out > 0 and V_out < 12.9 and V_out_old > V_out then charge_state_float = charge_state_float - charge_increment  end
 
 if charge_state_float < 0 then charge_state_float = 0 end 
-if charge_state_float > 100 then charge_state_float = 100 end
 
 charge_state_int = math.ceil(charge_state_float)
 
-printv(4, "SoC now, SoC avg: ", charge_state, charge_state_float, "\n V_out_old, V_out now", V_out_old, V_out)
+printv(2, "SoC now, SoC avg: ", charge_state, charge_state_float, "\n V_out_old, V_out now", V_out_old, V_out)
 
 V_out_old = V_out
 
@@ -592,5 +592,3 @@ if disp ~= nil then dofile"display.lua" end
  Bit_9  = nil
  Bit_10 = nil  
  Bit_11 = nil 
-
--- dofile"soc.lua"
